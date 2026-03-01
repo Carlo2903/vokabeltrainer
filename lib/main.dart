@@ -14,6 +14,7 @@ import 'ui/screens/active_learning_screen.dart';
 void main() async {
   // Wichtig für den Zugriff auf die nativen Android-Resourcen
   WidgetsFlutterBinding.ensureInitialized();
+  //test
 
   // Lädt die Konfiguration automatisch aus der google-services.json
   await Firebase.initializeApp();
