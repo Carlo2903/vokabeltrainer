@@ -7,12 +7,20 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:866524018140:android:d78b07198615a00a748b19",
+        "mobilesdk_app_id": "1:866524018140:android:2bba66da957d0620748b19",
         "android_client_info": {
-          "package_name": "com.example.vokabel_trainer"
+          "package_name": "com.fhswf.vokabeltrainer"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "866524018140-fo00epr18gt816iv4b0v501pqabhia8f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fhswf.vokabeltrainer",
+            "certificate_hash": "ed49405c50cf9be5316292df041c6305193575f7"
+          }
+        },
         {
           "client_id": "866524018140-9oj4jmejer2lrmu49o3hvi37qcm3ts7o.apps.googleusercontent.com",
           "client_type": 3
