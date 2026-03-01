@@ -12,7 +12,12 @@
           "package_name": "com.example.vokabel_trainer"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "866524018140-9oj4jmejer2lrmu49o3hvi37qcm3ts7o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyB6ADxplZgVsizsaCEpLtIKpejFXRpIQpA"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "866524018140-9oj4jmejer2lrmu49o3hvi37qcm3ts7o.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
