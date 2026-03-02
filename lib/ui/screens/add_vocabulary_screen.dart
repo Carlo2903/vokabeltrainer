@@ -56,7 +56,7 @@ class _AddVocabularyScreenState extends State<AddVocabularyScreen> {
       term: term,
       description: _descriptionController.text.trim(),
       translation: translation,
-      stack: VocabularyStack.masterBlock,
+      stack: VocabularyStack.training,
       languagePairId: pair.id,
       createdAt: DateTime.now(),
     );
