@@ -161,8 +161,8 @@ class StartSessionScreen extends StatelessWidget {
 
   Widget _buildDirectionSelector(BuildContext context, SessionProvider prov) {
     final options = [
-      (TranslationDirection.standard, 'EN→DE', 'Standard'),
-      (TranslationDirection.reverse, 'DE→EN', 'Reverse'),
+      (TranslationDirection.standard, 'DE→EN', 'Standard'),
+      (TranslationDirection.reverse, 'EN→DE', 'Reverse'),
       (TranslationDirection.mixed, '⇄', 'Mixed'),
     ];
     return Row(
