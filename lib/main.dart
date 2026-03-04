@@ -22,7 +22,6 @@ void main() async {
   runApp(const VokabelApp());
 }
 
-//test 2
 class VokabelApp extends StatelessWidget {
   const VokabelApp({super.key});
 
