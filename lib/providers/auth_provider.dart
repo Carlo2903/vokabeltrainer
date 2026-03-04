@@ -90,6 +90,8 @@ class AuthProvider extends ChangeNotifier {
 
   String _mapAuthError(String code) {
     switch (code) {
+      case 'invalid-credential':
+        return 'E-Mail oder Passwort ist falsch (oder noch nicht registriert).';
       case 'user-not-found':
         return 'Kein Account mit dieser E-Mail gefunden.';
       case 'wrong-password':
