@@ -5,10 +5,9 @@ import '../services/firestore_service.dart';
 
 class LanguageProvider extends ChangeNotifier {
   final FirestoreService _service;
+  String? _uid;
 
-  LanguageProvider(this._service) {
-    _subscribe();
-  }
+  LanguageProvider(this._service);
 
   List<LanguagePair> _pairs = [];
   LanguagePair? _selected;
@@ -19,11 +18,26 @@ class LanguageProvider extends ChangeNotifier {
   List<LanguagePair> get pairs => _pairs;
   LanguagePair? get selected => _selected;
 
-  void _subscribe() {
-    _subscription = _service.watchLanguagePairs().listen((list) {
+  /// Wird vom main.dart aufgerufen wenn sich der User ändert
+  void setUid(String? uid) {
+    if (_uid == uid) return;
+    _uid = uid;
+    _subscription?.cancel();
+    _pairs = [];
+    _selected = null;
+    if (uid != null) {
+      _isLoading = true;
+      _subscribe(uid);
+    } else {
+      _isLoading = false;
+    }
+    notifyListeners();
+  }
+
+  void _subscribe(String uid) {
+    _subscription = _service.watchLanguagePairs(uid).listen((list) {
       _pairs = list;
       _isLoading = false;
-      // Automatisch erstes Paar auswählen, wenn noch keins gewählt
       if (_selected == null && list.isNotEmpty) {
         _selected = list.first;
       }
@@ -37,8 +51,8 @@ class LanguageProvider extends ChangeNotifier {
   }
 
   Future<void> addLanguagePair(LanguagePair pair) async {
-    final id = await _service.addLanguagePair(pair);
-    // Neu angelegtes Paar direkt auswählen
+    if (_uid == null) return;
+    final id = await _service.addLanguagePair(_uid!, pair);
     final created = LanguagePair(
       id: id,
       title: pair.title,
@@ -54,7 +68,8 @@ class LanguageProvider extends ChangeNotifier {
   }
 
   Future<void> deleteLanguagePair(String pairId) async {
-    await _service.deleteLanguagePair(pairId);
+    if (_uid == null) return;
+    await _service.deleteLanguagePair(_uid!, pairId);
     if (_selected?.id == pairId) {
       _selected = _pairs.where((p) => p.id != pairId).firstOrNull;
       notifyListeners();

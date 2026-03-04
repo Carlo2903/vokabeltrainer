@@ -3,25 +3,23 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'services/firestore_service.dart';
 import 'services/training_service.dart';
+import 'services/auth_service.dart';
 import 'providers/vocabulary_provider.dart';
 import 'providers/language_provider.dart';
 import 'providers/session_provider.dart';
+import 'providers/auth_provider.dart';
 import 'ui/theme/app_theme.dart';
 import 'ui/widgets/app_shell.dart';
+import 'ui/screens/auth_screen.dart';
 import 'ui/screens/start_session_screen.dart';
 import 'ui/screens/active_learning_screen.dart';
 
 void main() async {
-  // Wichtig für den Zugriff auf die nativen Android-Resourcen
   WidgetsFlutterBinding.ensureInitialized();
-
-
-  // Lädt die Konfiguration automatisch aus der google-services.json
   await Firebase.initializeApp();
-
   runApp(const VokabelApp());
 }
-//
+
 class VokabelApp extends StatelessWidget {
   const VokabelApp({super.key});
 
@@ -29,9 +27,11 @@ class VokabelApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final firestoreService = FirestoreService();
     final trainingService = TrainingService(firestoreService);
+    final authService = AuthService();
 
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider(authService)),
         ChangeNotifierProvider(create: (_) => LanguageProvider(firestoreService)),
         ChangeNotifierProvider(create: (_) => VocabularyProvider(firestoreService)),
         ChangeNotifierProvider(create: (_) => SessionProvider(trainingService)),
@@ -40,13 +40,61 @@ class VokabelApp extends StatelessWidget {
         title: 'Vokabeltrainer',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.dark,
-        initialRoute: '/',
+        home: const _AuthGate(),
         routes: {
-          '/': (context) => const AppShell(),
           '/session/start': (context) => const StartSessionScreen(),
           '/session/active': (context) => const ActiveLearningScreen(),
         },
       ),
     );
+  }
+}
+
+/// Lauscht auf den Auth-State und zeigt AuthScreen oder AppShell
+class _AuthGate extends StatefulWidget {
+  const _AuthGate();
+
+  @override
+  State<_AuthGate> createState() => _AuthGateState();
+}
+
+class _AuthGateState extends State<_AuthGate> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _syncProviders();
+  }
+
+  void _syncProviders() {
+    final authProvider = context.watch<AuthProvider>();
+    final uid = authProvider.currentUser?.uid;
+
+    // uid in Providers setzen, damit sie user-spezifische Daten laden
+    final langProv = context.read<LanguageProvider>();
+    final vocabProv = context.read<VocabularyProvider>();
+    langProv.setUid(uid);
+    vocabProv.setUid(uid);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final authProvider = context.watch<AuthProvider>();
+    _syncProviders();
+
+    // Initialer Ladescreen
+    if (authProvider.isLoading) {
+      return const Scaffold(
+        backgroundColor: Color(0xFF0F172A),
+        body: Center(
+          child: CircularProgressIndicator(color: Color(0xFF6366F1)),
+        ),
+      );
+    }
+
+    if (authProvider.isLoggedIn) {
+      return const AppShell();
+    } else {
+      return const AuthScreen();
+    }
   }
 }

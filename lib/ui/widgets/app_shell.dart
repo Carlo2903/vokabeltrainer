@@ -3,8 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../screens/dashboard_screen.dart';
 import '../screens/stack_overview_screen.dart';
-import '../screens/placeholder_screen.dart';
 import '../screens/add_vocabulary_screen.dart';
+import '../screens/profile_screen.dart';
 import '../theme/app_theme.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/vocabulary_provider.dart';
@@ -28,26 +28,38 @@ class _AppShellState extends State<AppShell> {
 
   final _screens = const [
     DashboardScreen(),
-    PlaceholderScreen(title: 'Dictionary', icon: Icons.translate_rounded),
+    _PlaceholderTab(title: 'Dictionary', icon: Icons.translate_rounded),
     StackOverviewScreen(),
-    PlaceholderScreen(title: 'Profil', icon: Icons.account_circle_rounded),
+    ProfileScreen(),
   ];
+
+  void navigateToProfile() {
+    setState(() => _currentIndex = 3);
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Automatisch Vokabeln laden, wenn Sprachpaar vorhanden
+    // uid-basierte Subscriptions aktuell halten
     final langProv = context.watch<LanguageProvider>();
     final vocabProv = context.read<VocabularyProvider>();
     if (langProv.selected != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-
         vocabProv.subscribeToLanguagePair(langProv.selected!.id);
       });
     }
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: IndexedStack(index: _currentIndex, children: _screens),
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens.map((s) {
+          // DashboardScreen erhält Callback um zum Profil-Tab zu navigieren
+          if (s is DashboardScreen) {
+            return DashboardScreen(onProfileTap: navigateToProfile);
+          }
+          return s;
+        }).toList(),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => const AddVocabularyScreen()),
@@ -116,4 +128,35 @@ class _TabItem {
   final IconData icon;
   final String label;
   const _TabItem({required this.icon, required this.label});
+}
+
+// Interner Platzhalter (Dictionary)
+class _PlaceholderTab extends StatelessWidget {
+  final String title;
+  final IconData icon;
+  const _PlaceholderTab({required this.title, required this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: Center(
+          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Icon(icon, size: 72, color: AppColors.textMuted),
+            const SizedBox(height: 24),
+            Text(title,
+                style: GoogleFonts.lexend(
+                    fontSize: 22,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700)),
+            const SizedBox(height: 12),
+            Text('Kommt bald.',
+                style: GoogleFonts.lexend(
+                    fontSize: 14, color: AppColors.textSecondary)),
+          ]),
+        ),
+      ),
+    );
+  }
 }

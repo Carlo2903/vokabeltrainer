@@ -6,6 +6,7 @@ import '../services/firestore_service.dart';
 
 class VocabularyProvider extends ChangeNotifier {
   final FirestoreService _service;
+  String? _uid;
 
   VocabularyProvider(this._service);
 
@@ -34,14 +35,25 @@ class VocabularyProvider extends ChangeNotifier {
   double get masteryPercent =>
       totalWords == 0 ? 0 : mastered.length / totalWords;
 
+  /// Wird vom main.dart aufgerufen wenn sich der User ändert
+  void setUid(String? uid) {
+    if (_uid == uid) return;
+    _uid = uid;
+    _subscription?.cancel();
+    _vocabularies = [];
+    _currentLanguagePairId = null;
+    notifyListeners();
+  }
+
   void subscribeToLanguagePair(String languagePairId) {
+    if (_uid == null) return;
     if (_currentLanguagePairId == languagePairId) return;
     _currentLanguagePairId = languagePairId;
     _isLoading = true;
     notifyListeners();
 
     _subscription?.cancel();
-    _subscription = _service.watchVocabularies(languagePairId).listen((list) {
+    _subscription = _service.watchVocabularies(_uid!, languagePairId).listen((list) {
       _vocabularies = list;
       _isLoading = false;
       notifyListeners();
@@ -49,17 +61,18 @@ class VocabularyProvider extends ChangeNotifier {
   }
 
   Future<void> addVocabulary(Vocabulary vocab) async {
-    await _service.addVocabulary(vocab);
+    if (_uid == null) return;
+    await _service.addVocabulary(_uid!, vocab);
   }
 
   Future<void> moveToStack(String id, VocabularyStack stack) async {
-    if (_currentLanguagePairId == null) return;
-    await _service.moveToStack(_currentLanguagePairId!, id, stack);
+    if (_uid == null || _currentLanguagePairId == null) return;
+    await _service.moveToStack(_uid!, _currentLanguagePairId!, id, stack);
   }
 
   Future<void> deleteVocabulary(String id) async {
-    if (_currentLanguagePairId == null) return;
-    await _service.deleteVocabulary(_currentLanguagePairId!, id);
+    if (_uid == null || _currentLanguagePairId == null) return;
+    await _service.deleteVocabulary(_uid!, _currentLanguagePairId!, id);
   }
 
   @override

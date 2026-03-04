@@ -6,60 +6,69 @@ import '../models/language_pair.dart';
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
+  // ── Basis-Pfade (user-scoped) ─────────────────────────────────────────────
+
+  CollectionReference<Map<String, dynamic>> _vocabLists(String uid) =>
+      _db.collection('users').doc(uid).collection('vocabLists');
+
+  CollectionReference<Map<String, dynamic>> _vocabularies(
+          String uid, String languagePairId) =>
+      _vocabLists(uid).doc(languagePairId).collection('vocabularies');
+
   // ── Vokabeln ──────────────────────────────────────────────────────────────
 
-  Stream<List<Vocabulary>> watchVocabularies(String languagePairId) {
-    return _db
-        .collection('vocabLists')
-        .doc(languagePairId)
-        .collection('vocabularies')
+  Stream<List<Vocabulary>> watchVocabularies(String uid, String languagePairId) {
+    return _vocabularies(uid, languagePairId)
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snap) => snap.docs.map(Vocabulary.fromFirestore).toList());
   }
 
-  Future<void> addVocabulary(Vocabulary vocab) async {
-    await _db
-        .collection('vocabLists')
-        .doc(vocab.languagePairId)
-        .collection('vocabularies')
-        .add(vocab.toFirestore());
+  Future<void> addVocabulary(String uid, Vocabulary vocab) async {
+    await _vocabularies(uid, vocab.languagePairId).add(vocab.toFirestore());
   }
 
-  Future<void> moveToStack(String languagePairId, String vocabId, VocabularyStack stack) async {
-    await _db
-        .collection('vocabLists')
-        .doc(languagePairId)
-        .collection('vocabularies')
+  Future<void> moveToStack(
+      String uid, String languagePairId, String vocabId, VocabularyStack stack) async {
+    await _vocabularies(uid, languagePairId)
         .doc(vocabId)
         .update({'stack': stack.firestoreValue});
   }
 
-  Future<void> deleteVocabulary(String languagePairId, String vocabId) async {
-    await _db
-        .collection('vocabLists')
-        .doc(languagePairId)
-        .collection('vocabularies')
-        .doc(vocabId)
-        .delete();
+  Future<void> deleteVocabulary(
+      String uid, String languagePairId, String vocabId) async {
+    await _vocabularies(uid, languagePairId).doc(vocabId).delete();
   }
 
   // ── Sprachpaare ───────────────────────────────────────────────────────────
 
-  Stream<List<LanguagePair>> watchLanguagePairs() {
-    return _db
-        .collection('vocabLists')
+  Stream<List<LanguagePair>> watchLanguagePairs(String uid) {
+    return _vocabLists(uid)
         .orderBy('createdAt')
         .snapshots()
         .map((snap) => snap.docs.map(LanguagePair.fromFirestore).toList());
   }
 
-  Future<String> addLanguagePair(LanguagePair pair) async {
-    final ref = await _db.collection('vocabLists').add(pair.toFirestore());
+  Future<String> addLanguagePair(String uid, LanguagePair pair) async {
+    final ref = await _vocabLists(uid).add(pair.toFirestore());
     return ref.id;
   }
 
-  Future<void> deleteLanguagePair(String pairId) async {
-    await _db.collection('vocabLists').doc(pairId).delete();
+  Future<void> deleteLanguagePair(String uid, String pairId) async {
+    await _vocabLists(uid).doc(pairId).delete();
+  }
+
+  // ── Userprofil ────────────────────────────────────────────────────────────
+
+  Future<Map<String, dynamic>?> getUserProfile(String uid) async {
+    final doc = await _db.collection('users').doc(uid).get();
+    return doc.data();
+  }
+
+  Future<void> saveUserProfile(String uid, Map<String, dynamic> data) async {
+    await _db
+        .collection('users')
+        .doc(uid)
+        .set(data, SetOptions(merge: true));
   }
 }

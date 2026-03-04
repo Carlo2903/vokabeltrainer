@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../models/language_pair.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/vocabulary_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/add_language_dialog.dart';
 
 class DashboardScreen extends StatelessWidget {
-  const DashboardScreen({super.key});
+  final VoidCallback? onProfileTap;
+  const DashboardScreen({super.key, this.onProfileTap});
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +35,7 @@ class DashboardScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildHeader(),
+                        _buildHeader(context),
                         const SizedBox(height: 28),
                         _buildStatsRow(vocabProv),
                         const SizedBox(height: 28),
@@ -58,30 +60,54 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+    final user = auth.currentUser;
+    final displayName = user?.displayName ?? 'Vokabeltrainer';
+    final photoUrl = user?.photoURL;
+    final initials = displayName.trim().isNotEmpty ? displayName.trim()[0].toUpperCase() : 'V';
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Good evening,',
+            Text('Willkommen,',
                 style: GoogleFonts.lexend(
                     fontSize: 13, color: AppColors.textSecondary, fontWeight: FontWeight.w300)),
-            Text('Vokabeltrainer',
+            Text(displayName,
                 style: GoogleFonts.lexend(
                     fontSize: 24, color: Colors.white, fontWeight: FontWeight.w700)),
           ],
         ),
-        Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: const LinearGradient(
-                colors: [AppColors.primary, AppColors.accent]),
+        GestureDetector(
+          onTap: onProfileTap,
+          child: Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: const LinearGradient(
+                  colors: [AppColors.primary, AppColors.accent]),
+            ),
+            child: photoUrl != null && photoUrl.isNotEmpty
+                ? ClipOval(
+                    child: Image.network(
+                      photoUrl,
+                      width: 48,
+                      height: 48,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) =>
+                          Center(child: Text(initials,
+                              style: GoogleFonts.lexend(fontSize: 18, color: Colors.white, fontWeight: FontWeight.w700))),
+                    ),
+                  )
+                : Center(
+                    child: Text(initials,
+                        style: GoogleFonts.lexend(fontSize: 18, color: Colors.white, fontWeight: FontWeight.w700)),
+                  ),
           ),
-          child: const Icon(Icons.person, color: Colors.white, size: 26),
         ),
       ],
     );
