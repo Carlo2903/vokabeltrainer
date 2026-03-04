@@ -10,7 +10,7 @@ dependencies {
 }
 
 android {
-    namespace = "com.example.vokabel_trainer.vokabeltrainer"
+    namespace = "com.fhswf.vokabeltrainer.vokabeltrainer"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -24,7 +24,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.vokabel_trainer"
+        applicationId = "com.fhswf.vokabeltrainer"
         minSdk = flutter.minSdkVersion
         multiDexEnabled = true
         targetSdk = flutter.targetSdkVersion
