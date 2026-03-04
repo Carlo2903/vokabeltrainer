@@ -20,10 +20,10 @@ class _AppShellState extends State<AppShell> {
   int _currentIndex = 0;
 
   static const _tabs = [
-    _TabItem(icon: Icons.grid_view_rounded, label: 'Learn'),
-    _TabItem(icon: Icons.translate_rounded, label: 'Dictionary'),
-    _TabItem(icon: Icons.analytics_rounded, label: 'Stats'),
-    _TabItem(icon: Icons.account_circle_rounded, label: 'Profile'),
+    _TabItem(icon: Icons.grid_view_rounded, label: 'Lernen'),
+    _TabItem(icon: Icons.translate_rounded, label: 'Wörterbuch'),
+    _TabItem(icon: Icons.analytics_rounded, label: 'Statistiken'),
+    _TabItem(icon: Icons.account_circle_rounded, label: 'Profil'),
   ];
 
   final _screens = const [

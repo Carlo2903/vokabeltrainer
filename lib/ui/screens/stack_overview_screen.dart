@@ -33,7 +33,7 @@ class StackOverviewScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Text('LEARNING PATH',
+                        Text('LERNPFAD',
                             style: GoogleFonts.lexend(
                                 fontSize: 9, color: AppColors.mastered,
                                 fontWeight: FontWeight.w700, letterSpacing: 2.2)),
@@ -75,7 +75,7 @@ class StackOverviewScreen extends StatelessWidget {
                         // Review + Mastered (2-spaltig)
                         Row(children: [
                           Expanded(child: _buildSmallStackCard(
-                            label: 'Review Pile',
+                            label: 'Wiederholungsstapel',
                             subtitle: 'Erweiterter Stapel',
                             count: vocabProv.review.length,
                             color: AppColors.review,
@@ -83,7 +83,7 @@ class StackOverviewScreen extends StatelessWidget {
                           )),
                           const SizedBox(width: 14),
                           Expanded(child: _buildSmallStackCard(
-                            label: 'Mastered',
+                            label: 'Gemeistert',
                             subtitle: 'Geprüfter Stapel',
                             count: vocabProv.mastered.length,
                             color: AppColors.mastered,
@@ -112,7 +112,7 @@ class StackOverviewScreen extends StatelessWidget {
               child: ElevatedButton.icon(
                 onPressed: () => Navigator.of(context).pushNamed('/session/start'),
                 icon: const Icon(Icons.play_circle_filled),
-                label: Text('START SESSION',
+                label: Text('SITZUNG STARTEN',
                     style: GoogleFonts.lexend(
                         fontWeight: FontWeight.w800, letterSpacing: 2)),
                 style: ElevatedButton.styleFrom(
@@ -135,7 +135,7 @@ class StackOverviewScreen extends StatelessWidget {
       children: [
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Overall Mastery',
+            Text('Gesamtbeherrschung',
                 style: GoogleFonts.lexend(
                     fontSize: 11, color: AppColors.textMuted,
                     fontWeight: FontWeight.w600, letterSpacing: 1.2)),
@@ -152,14 +152,14 @@ class StackOverviewScreen extends StatelessWidget {
                     color: AppColors.mastered.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(99),
                   ),
-                  child: Text('+2% week',
+                  child: Text('+2% woche',
                       style: GoogleFonts.lexend(
                           fontSize: 11, color: AppColors.mastered, fontWeight: FontWeight.w500)),
                 ),
               ],
             ),
           ]),
-          Text('$mastered / $total words',
+          Text('$mastered / $total wörter',
               style: GoogleFonts.lexend(fontSize: 11, color: AppColors.textSecondary)),
         ]),
         const SizedBox(height: 12),
@@ -215,13 +215,13 @@ class StackOverviewScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
                   color: AppColors.training, borderRadius: BorderRadius.circular(99)),
-              child: Text('$due Due Today',
+              child: Text('$due Heute fällig',
                   style: GoogleFonts.lexend(
                       fontSize: 10, color: Colors.white, fontWeight: FontWeight.w700)),
             ),
           ]),
           const SizedBox(height: 20),
-          Text('Current Training',
+          Text('Aktuelles Training',
               style: GoogleFonts.lexend(
                   fontSize: 20, color: Colors.white, fontWeight: FontWeight.w700)),
           Text('Trainingsstapel',
@@ -236,7 +236,7 @@ class StackOverviewScreen extends StatelessWidget {
                     style: GoogleFonts.lexend(
                         fontSize: 40, color: Colors.white, fontWeight: FontWeight.w700)),
                 const SizedBox(width: 6),
-                Text('words',
+                Text('wörter',
                     style: GoogleFonts.lexend(fontSize: 14, color: AppColors.textMuted)),
               ],
             ),
@@ -247,7 +247,7 @@ class StackOverviewScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
               ),
-              child: Text('Daily Target: 65%',
+              child: Text('Tagesziel: 65%',
                   style: GoogleFonts.lexend(fontSize: 11, color: AppColors.textSecondary)),
             ),
           ]),
@@ -348,7 +348,7 @@ class StackOverviewScreen extends StatelessWidget {
             Text('$total',
                 style: GoogleFonts.lexend(
                     fontSize: 24, color: Colors.white, fontWeight: FontWeight.w700)),
-            Text('TOTAL',
+            Text('INSGESAMT',
                 style: GoogleFonts.lexend(
                     fontSize: 9, color: AppColors.textMuted, fontWeight: FontWeight.w700)),
           ]),

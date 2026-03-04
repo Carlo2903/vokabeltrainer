@@ -28,7 +28,7 @@ class StartSessionScreen extends StatelessWidget {
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                     const Spacer(),
-                    Text('Configuration',
+                    Text('Konfiguration',
                         style: GoogleFonts.lexend(
                             color: AppColors.textSecondary, fontSize: 16)),
                     const Spacer(),
@@ -52,20 +52,20 @@ class StartSessionScreen extends StatelessWidget {
                           style: GoogleFonts.lexend(
                               fontSize: 38, fontWeight: FontWeight.w700, color: Colors.white),
                           children: [
-                            const TextSpan(text: 'Start Training'),
+                            const TextSpan(text: 'Training starten'),
                             TextSpan(text: '.', style: GoogleFonts.lexend(
                                 color: const Color(0xFF13EC5B), fontSize: 38, fontWeight: FontWeight.w700)),
                           ],
                         ),
                       ),
-                      Text('Customize your daily repetition session.',
+                      Text('Passe dein tägliches Wiederholungsprogramm individuell an..',
                           style: GoogleFonts.lexend(color: AppColors.textSecondary)),
                       const SizedBox(height: 28),
                       // Master Pile Card
                       _buildMasterPileCard(masterCount),
                       const SizedBox(height: 28),
                       // Übersetzungsrichtung
-                      Text('Translation Direction',
+                      Text('Übersetzungsrichtung',
                           style: GoogleFonts.lexend(
                               fontSize: 13, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
                       const SizedBox(height: 14),
@@ -102,7 +102,7 @@ class StartSessionScreen extends StatelessWidget {
                         Navigator.of(context).pushNamed('/session/active');
                       },
                 icon: const Icon(Icons.arrow_forward),
-                label: Text('Start Session',
+                label: Text('Session starten',
                     style: GoogleFonts.lexend(fontWeight: FontWeight.w800, fontSize: 17)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF13EC5B),
@@ -133,15 +133,15 @@ class StartSessionScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('MASTER PILE',
+            Text('MEISTERSTAPEL',
                 style: GoogleFonts.lexend(
                     fontSize: 9, color: const Color(0xFF13EC5B),
                     fontWeight: FontWeight.w700, letterSpacing: 1.8)),
             const SizedBox(height: 4),
-            Text('$count Words',
+            Text('$count Wörter',
                 style: GoogleFonts.lexend(
                     fontSize: 24, color: Colors.white, fontWeight: FontWeight.w700)),
-            Text('Ready for review',
+            Text('Bereit zur Überprüfung',
                 style: GoogleFonts.lexend(
                     fontSize: 13, color: AppColors.textSecondary)),
           ]),
@@ -162,8 +162,8 @@ class StartSessionScreen extends StatelessWidget {
   Widget _buildDirectionSelector(BuildContext context, SessionProvider prov) {
     final options = [
       (TranslationDirection.standard, 'DE→EN', 'Standard'),
-      (TranslationDirection.reverse, 'EN→DE', 'Reverse'),
-      (TranslationDirection.mixed, '⇄', 'Mixed'),
+      (TranslationDirection.reverse, 'EN→DE', 'Umkehren'),
+      (TranslationDirection.mixed, '⇄', 'Gemischt'),
     ];
     return Row(
       children: options.map((opt) {
@@ -219,7 +219,7 @@ class StartSessionScreen extends StatelessWidget {
       child: Column(
         children: [
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Text('Session Length',
+            Text('Sitzungsdauer',
                 style: GoogleFonts.lexend(
                     fontSize: 13, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
             Row(crossAxisAlignment: CrossAxisAlignment.baseline, textBaseline: TextBaseline.alphabetic,
@@ -228,7 +228,7 @@ class StartSessionScreen extends StatelessWidget {
                     style: GoogleFonts.lexend(
                         fontSize: 38, color: const Color(0xFF00F2FF), fontWeight: FontWeight.w700)),
                 const SizedBox(width: 4),
-                Text('words',
+                Text('wörter',
                     style: GoogleFonts.lexend(fontSize: 13, color: AppColors.textMuted)),
               ],
             ),
@@ -251,10 +251,10 @@ class StartSessionScreen extends StatelessWidget {
             ),
           ),
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Text('QUICK',
+            Text('SCHNELL',
                 style: GoogleFonts.lexend(
                     fontSize: 9, color: AppColors.textMuted, fontWeight: FontWeight.w700, letterSpacing: 1.5)),
-            Text('INTENSE',
+            Text('INTENSIV',
                 style: GoogleFonts.lexend(
                     fontSize: 9, color: AppColors.textMuted, fontWeight: FontWeight.w700, letterSpacing: 1.5)),
           ]),
@@ -277,7 +277,7 @@ class StartSessionScreen extends StatelessWidget {
         children: [
           Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('DAILY STREAK',
+              Text('TÄGLICHE SERIE',
                   style: GoogleFonts.lexend(
                       fontSize: 9, color: AppColors.textMuted,
                       fontWeight: FontWeight.w700, letterSpacing: 1.5)),
@@ -285,7 +285,7 @@ class StartSessionScreen extends StatelessWidget {
               Row(children: [
                 const Icon(Icons.local_fire_department, color: Colors.orange, size: 20),
                 const SizedBox(width: 6),
-                Text('0 Days',
+                Text('0 tage',
                     style: GoogleFonts.lexend(
                         fontSize: 22, color: Colors.white, fontWeight: FontWeight.w700)),
               ]),

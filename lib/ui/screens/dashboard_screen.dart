@@ -39,7 +39,7 @@ class DashboardScreen extends StatelessWidget {
                         const SizedBox(height: 28),
                         _buildStatsRow(vocabProv),
                         const SizedBox(height: 28),
-                        _buildSectionTitle(context, 'Active Courses'),
+                        _buildSectionTitle(context, 'Aktive Kurse'),
                         const SizedBox(height: 16),
                         if (selectedPair != null)
                           _buildActiveCourseCard(context, selectedPair, vocabProv),
@@ -119,17 +119,17 @@ class DashboardScreen extends StatelessWidget {
         Expanded(child: _buildStatCard(
           icon: Icons.local_fire_department,
           iconColor: AppColors.accent,
-          label: 'DAILY STREAK',
+          label: 'TÄGLICHE SERIE',
           value: '0',
-          unit: 'days',
+          unit: 'tage',
         )),
         const SizedBox(width: 14),
         Expanded(child: _buildStatCard(
           icon: Icons.auto_awesome,
           iconColor: AppColors.primary,
-          label: 'WORDS LEARNT',
+          label: 'GELERNTE WÖRTER',
           value: '${vocabProv.mastered.length}',
-          unit: 'total',
+          unit: 'insgesamt',
         )),
       ],
     );
@@ -234,12 +234,12 @@ class DashboardScreen extends StatelessWidget {
                   Text(pair.title,
                       style: GoogleFonts.lexend(
                           fontSize: 20, color: Colors.white, fontWeight: FontWeight.w700)),
-                  Text('→ ${pair.targetLanguage}  •  $total Words',
+                  Text('→ ${pair.targetLanguage}  •  $total Wörter',
                       style: GoogleFonts.lexend(
                           fontSize: 11, color: AppColors.textSecondary)),
                 ]),
               ]),
-              Text('${(masteryPercent * 100).toStringAsFixed(0)}% total',
+              Text('${(masteryPercent * 100).toStringAsFixed(0)}% insgesamt',
                   style: GoogleFonts.lexend(
                       fontSize: 11, color: AppColors.primary, fontWeight: FontWeight.w700)),
             ],
@@ -248,11 +248,11 @@ class DashboardScreen extends StatelessWidget {
           // Balken-Diagramm
           Row(
             children: [
-              _buildStackBar('Learning', trainingCount, total, AppColors.surfaceLight),
+              _buildStackBar('Lernen', trainingCount, total, AppColors.surfaceLight),
               const SizedBox(width: 12),
-              _buildStackBar('Review', reviewCount, total, AppColors.primary),
+              _buildStackBar('Wiederholung', reviewCount, total, AppColors.primary),
               const SizedBox(width: 12),
-              _buildStackBar('Mastered', masteredCount, total, AppColors.success),
+              _buildStackBar('Gemeistert', masteredCount, total, AppColors.success),
             ],
           ),
           const SizedBox(height: 24),
@@ -261,7 +261,7 @@ class DashboardScreen extends StatelessWidget {
             child: ElevatedButton.icon(
               onPressed: () => Navigator.of(context).pushNamed('/session/start'),
               icon: const Icon(Icons.bolt),
-              label: const Text('Start Training Session'),
+              label: const Text('Trainingseinheit starten'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
@@ -382,7 +382,7 @@ class DashboardScreen extends StatelessWidget {
             child: const Icon(Icons.add, color: AppColors.textMuted, size: 20),
           ),
           const SizedBox(height: 8),
-          Text('ADD NEW LANGUAGE',
+          Text('NEUE SPRACHE HINZUFÜGEN',
               style: GoogleFonts.lexend(
                   fontSize: 10, color: AppColors.textMuted,
                   fontWeight: FontWeight.w700, letterSpacing: 1.8)),

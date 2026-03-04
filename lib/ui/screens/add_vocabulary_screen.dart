@@ -84,15 +84,15 @@ class _AddVocabularyScreenState extends State<AddVocabularyScreen> {
               children: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: Text('Cancel',
+                  child: Text('Zurück',
                       style: GoogleFonts.lexend(color: AppColors.mastered, fontSize: 15)),
                 ),
-                Text('Add Vocabulary',
+                Text('Vokabeln hinzufügen',
                     style: GoogleFonts.lexend(
                         fontSize: 17, color: Colors.white, fontWeight: FontWeight.w600)),
                 TextButton(
                   onPressed: _isSaving ? null : _save,
-                  child: Text('Done',
+                  child: Text('Weiter',
                       style: GoogleFonts.lexend(
                           color: AppColors.mastered, fontSize: 15, fontWeight: FontWeight.w700)),
                 ),
@@ -133,7 +133,7 @@ class _AddVocabularyScreenState extends State<AddVocabularyScreen> {
                 ),
                 const SizedBox(height: 28),
                 // The Word
-                _buildFieldLabel('THE WORD', trailing: Row(children: [
+                _buildFieldLabel('DAS WORT', trailing: Row(children: [
                   const Icon(Icons.auto_awesome, size: 14, color: AppColors.textMuted),
                   const SizedBox(width: 4),
                   Text('Smart Suggest',
@@ -150,7 +150,7 @@ class _AddVocabularyScreenState extends State<AddVocabularyScreen> {
                 _buildTextArea(_descriptionController, hint: 'Beschreibe die Bedeutung...'),
                 const SizedBox(height: 22),
                 // Translation
-                _buildFieldLabel('TRANSLATION', trailing: Row(children: [
+                _buildFieldLabel('ÜBERSETZUNG', trailing: Row(children: [
                   const Icon(Icons.translate, size: 14, color: AppColors.mastered),
                   const SizedBox(width: 4),
                   Text('Auto-fill',
@@ -209,7 +209,7 @@ class _AddVocabularyScreenState extends State<AddVocabularyScreen> {
                 ? const SizedBox(width: 18, height: 18,
                     child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
                 : const Icon(Icons.save),
-            label: Text(_isSaving ? 'Speichere...' : 'Save Vocabulary',
+            label: Text(_isSaving ? 'Speichere...' : 'Speichern',
                 style: GoogleFonts.lexend(fontWeight: FontWeight.w800,
                     letterSpacing: 1.5, fontSize: 15)),
             style: ElevatedButton.styleFrom(
