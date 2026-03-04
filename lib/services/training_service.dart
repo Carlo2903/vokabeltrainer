@@ -23,21 +23,21 @@ class TrainingService {
   }
 
   /// Richtig: training → review, review → mastered
-  Future<void> markCorrect(Vocabulary vocab) async {
+  Future<void> markCorrect(String uid, Vocabulary vocab) async {
     final nextStack = switch (vocab.stack) {
       VocabularyStack.training => VocabularyStack.review,
       VocabularyStack.review => VocabularyStack.mastered,
       _ => vocab.stack,
     };
     if (nextStack != vocab.stack) {
-      await _firestoreService.moveToStack(vocab.languagePairId, vocab.id, nextStack);
+      await _firestoreService.moveToStack(uid, vocab.languagePairId, vocab.id, nextStack);
     }
   }
 
   /// Falsch: review → training, training bleibt training
-  Future<void> markWrong(Vocabulary vocab) async {
+  Future<void> markWrong(String uid, Vocabulary vocab) async {
     if (vocab.stack == VocabularyStack.review) {
-      await _firestoreService.moveToStack(vocab.languagePairId, vocab.id, VocabularyStack.training);
+      await _firestoreService.moveToStack(uid, vocab.languagePairId, vocab.id, VocabularyStack.training);
     }
   }
 }

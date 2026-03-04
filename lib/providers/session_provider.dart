@@ -82,18 +82,18 @@ class SessionProvider extends ChangeNotifier {
 
   // ── Bewertung ─────────────────────────────────────────────────────────────
 
-  Future<void> markCorrect() async {
+  Future<void> markCorrect(String uid) async {
     final word = currentWord;
     if (word == null) return;
-    await _trainingService.markCorrect(word);
+    await _trainingService.markCorrect(uid, word);
     _correctCount++;
     _advance();
   }
 
-  Future<void> markWrong() async {
+  Future<void> markWrong(String uid) async {
     final word = currentWord;
     if (word == null) return;
-    await _trainingService.markWrong(word);
+    await _trainingService.markWrong(uid, word);
     _advance();
   }
 

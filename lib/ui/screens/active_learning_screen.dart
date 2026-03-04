@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/session_provider.dart';
 import '../theme/app_theme.dart';
 
@@ -86,13 +87,19 @@ class ActiveLearningScreen extends StatelessWidget {
                   Expanded(child: _actionBtn(
                     label: 'Wrong', sublabel: 'REPEAT SOON',
                     icon: Icons.close, color: const Color(0xFFEF4444),
-                    onTap: session.markWrong,
+                    onTap: () {
+                      final uid = context.read<AuthProvider>().currentUser?.uid;
+                      if (uid != null) session.markWrong(uid);
+                    },
                   )),
                   const SizedBox(width: 14),
                   Expanded(child: _actionBtn(
                     label: 'Correct', sublabel: '+15 POINTS',
                     icon: Icons.check, color: const Color(0xFF22C55E),
-                    onTap: session.markCorrect,
+                    onTap: () {
+                      final uid = context.read<AuthProvider>().currentUser?.uid;
+                      if (uid != null) session.markCorrect(uid);
+                    },
                   )),
                 ]),
               ),
