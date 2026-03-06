@@ -36,7 +36,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     try {
       final auth = context.read<AuthProvider>();
-      final uid = auth.currentUser?.uid;
+      final uid = auth.currentUser!.uid;
       if (uid == null) return;
 
       // Bild zu Firebase Storage hochladen
