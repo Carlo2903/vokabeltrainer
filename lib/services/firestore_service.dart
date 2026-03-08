@@ -71,4 +71,27 @@ class FirestoreService {
         .doc(uid)
         .set(data, SetOptions(merge: true));
   }
+
+  // ── Global Catalog ────────────────────────────────────────────────────────
+
+  Future<void> uploadGlobalCatalog(List<Map<String, dynamic>> items) async {
+    final batch = _db.batch();
+    final collection = _db.collection('global_catalog');
+
+    for (var item in items) {
+      final docRef = collection.doc();
+      batch.set(docRef, item);
+    }
+
+    await batch.commit();
+  }
+
+  Future<List<Map<String, dynamic>>> fetchGlobalCatalog(String language) async {
+    final snapshot = await _db
+        .collection('global_catalog')
+        .where('language', isEqualTo: language)
+        .get();
+
+    return snapshot.docs.map((doc) => doc.data()).toList();
+  }
 }

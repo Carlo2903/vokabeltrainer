@@ -50,8 +50,8 @@ class LanguageProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addLanguagePair(LanguagePair pair) async {
-    if (_uid == null) return;
+  Future<LanguagePair> addLanguagePair(LanguagePair pair) async {
+    if (_uid == null) throw Exception('User not logged in');
     final id = await _service.addLanguagePair(_uid!, pair);
     final created = LanguagePair(
       id: id,
@@ -65,6 +65,7 @@ class LanguageProvider extends ChangeNotifier {
     );
     _selected = created;
     notifyListeners();
+    return created;
   }
 
   Future<void> deleteLanguagePair(String pairId) async {

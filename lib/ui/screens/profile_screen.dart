@@ -1,12 +1,16 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'dart:convert';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/vocabulary_provider.dart';
+import '../../services/firestore_service.dart';
 import '../theme/app_theme.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -18,6 +22,83 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   bool _isUploadingImage = false;
+  bool _isUploadingCatalog = false;
+  bool _isAdmin = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAdminStatus();
+  }
+
+  Future<void> _checkAdminStatus() async {
+    final user = context.read<AuthProvider>().currentUser;
+    if (user != null) {
+      final profile = await FirestoreService().getUserProfile(user.uid);
+      if (profile != null && profile['isAdmin'] == true) {
+        if (mounted) {
+          setState(() {
+            _isAdmin = true;
+          });
+        }
+      }
+    }
+  }
+
+  Future<void> _uploadCatalog() async {
+    setState(() => _isUploadingCatalog = true);
+    try {
+      final String response = await rootBundle.loadString('assets/woerter.json');
+      final Map<String, dynamic> data = json.decode(response);
+
+      List<Map<String, dynamic>> itemsToUpload = [];
+
+      data.forEach((term, translations) {
+        if (translations is Map<String, dynamic>) {
+          if (translations.containsKey('en')) {
+            itemsToUpload.add({
+              'term': term,
+              'translation': translations['en'],
+              'language': 'en',
+              'createdAt': FieldValue.serverTimestamp(),
+            });
+          }
+          if (translations.containsKey('es')) {
+            itemsToUpload.add({
+              'term': term,
+              'translation': translations['es'],
+              'language': 'es',
+              'createdAt': FieldValue.serverTimestamp(),
+            });
+          }
+        }
+      });
+
+      if (itemsToUpload.isNotEmpty) {
+        await FirestoreService().uploadGlobalCatalog(itemsToUpload);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${itemsToUpload.length} Wörter erfolgreich hochgeladen!'),
+              backgroundColor: AppColors.success,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      print('DEBUG: Catalog Upload Error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Fehler beim Hochladen: $e'),
+            backgroundColor: AppColors.danger,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isUploadingCatalog = false);
+    }
+  }
 
   Future<void> _pickAndUploadImage() async {
     final picker = ImagePicker();
@@ -136,6 +217,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
+
 
   Future<void> _logout() async {
     final confirmed = await showDialog<bool>(
@@ -341,7 +423,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 100),
+
+                        const SizedBox(height: 24),
+
+                        if (_isAdmin) ...[
+                          // ── Katalog Upload (Admin) ────────────────────────
+                          SizedBox(
+                            width: double.infinity,
+                            height: 56,
+                            child: ElevatedButton.icon(
+                              onPressed: _isUploadingCatalog ? null : _uploadCatalog,
+                              icon: _isUploadingCatalog
+                                  ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2, color: Colors.white),
+                              )
+                                  : const Icon(Icons.cloud_upload_rounded, color: Colors.white),
+                              label: Text(
+                                _isUploadingCatalog ? 'Lädt hoch...' : 'Katalog befüllen',
+                                style: GoogleFonts.lexend(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16)),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 100),
+                        ] else ...[
+                          const SizedBox(height: 76),
+                        ],
                       ],
                     ),
                   ),

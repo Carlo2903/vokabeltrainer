@@ -46,7 +46,7 @@ class DashboardScreen extends StatelessWidget {
                         const SizedBox(height: 16),
                         ..._buildInactiveCourses(context, langProv, selectedPair),
                         const SizedBox(height: 16),
-                        _buildAddLanguageButton(context, langProv),
+                        _buildAddLanguageButton(context, langProv, vocabProv),
                         const SizedBox(height: 100),
                       ],
                     ),
@@ -355,12 +355,42 @@ class DashboardScreen extends StatelessWidget {
     )).toList();
   }
 
-  Widget _buildAddLanguageButton(BuildContext context, LanguageProvider langProv) {
+  Widget _buildAddLanguageButton(BuildContext context, LanguageProvider langProv, VocabularyProvider vocabProv) {
     return GestureDetector(
-      onTap: () => showDialog(
-        context: context,
-        builder: (_) => AddLanguageDialog(onAdd: (pair) => langProv.addLanguagePair(pair)),
-      ),
+      onTap: () async {
+        final result = await showDialog<Map<String, String>?>(
+          context: context,
+          builder: (_) => AddLanguageDialog(onAdd: (pair) => langProv.addLanguagePair(pair)),
+        );
+
+        // Wenn ein Resultat zurückkommt, wurde der Schalter "Katalog importieren" aktiviert
+        if (result != null && context.mounted) {
+           ScaffoldMessenger.of(context).showSnackBar(
+             SnackBar(
+               content: Text('Katalog wird im Hintergrund importiert...'),
+               backgroundColor: AppColors.primary,
+               duration: const Duration(seconds: 2),
+             ),
+           );
+
+           final pair = langProv.selected;
+           if (pair != null) {
+              final sourceLang = result['source']!;
+              final targetLang = result['target']!;
+              
+              await vocabProv.importFromCatalog(sourceLang, targetLang, pair.id);
+              
+              if (context.mounted) {
+                 ScaffoldMessenger.of(context).showSnackBar(
+                   const SnackBar(
+                      content: Text('Vokabeln erfolgreich geladen!'),
+                      backgroundColor: AppColors.success,
+                   ),
+                 );
+              }
+           }
+        }
+      },
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 20),

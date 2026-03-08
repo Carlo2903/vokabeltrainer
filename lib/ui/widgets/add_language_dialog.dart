@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import '../../models/language_pair.dart';
+import '../../providers/vocabulary_provider.dart';
 import '../theme/app_theme.dart';
 
 class AddLanguageDialog extends StatefulWidget {
@@ -13,48 +15,88 @@ class AddLanguageDialog extends StatefulWidget {
 
 class _AddLanguageDialogState extends State<AddLanguageDialog> {
   final _titleController = TextEditingController();
-  final _sourceController = TextEditingController(text: 'Deutsch');
-  final _targetController = TextEditingController(text: 'Englisch');
-  final _sourceFlagController = TextEditingController(text: '🇩🇪');
-  final _targetFlagController = TextEditingController(text: '🇬🇧');
   final _levelController = TextEditingController(text: 'A1');
   bool _isSaving = false;
+  bool _importCatalog = true;
+
+  // Vordefinierte Optionen
+  final List<Map<String, String>> _languagePairs = [
+    {
+      'label': 'Englisch 🇬🇧 → Deutsch 🇩🇪',
+      'source': 'Englisch', 'sFlag': '🇬🇧',
+      'target': 'Deutsch', 'tFlag': '🇩🇪',
+    },
+    {
+      'label': 'Spanisch 🇪🇸 → Deutsch 🇩🇪',
+      'source': 'Spanisch', 'sFlag': '🇪🇸',
+      'target': 'Deutsch', 'tFlag': '🇩🇪',
+    },
+    {
+      'label': 'Englisch 🇬🇧 → Spanisch 🇪🇸',
+      'source': 'Englisch', 'sFlag': '🇬🇧',
+      'target': 'Spanisch', 'tFlag': '🇪🇸',
+    },
+    {
+      'label': 'Spanisch 🇪🇸 → Englisch 🇬🇧',
+      'source': 'Spanisch', 'sFlag': '🇪🇸',
+      'target': 'Englisch', 'tFlag': '🇬🇧',
+    },
+  ];
+
+  late Map<String, String> _selectedPair;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedPair = _languagePairs.first;
+  }
 
   @override
   void dispose() {
     _titleController.dispose();
-    _sourceController.dispose();
-    _targetController.dispose();
-    _sourceFlagController.dispose();
-    _targetFlagController.dispose();
     _levelController.dispose();
     super.dispose();
   }
 
   Future<void> _save() async {
-    if (_sourceController.text.isEmpty || _targetController.text.isEmpty) return;
-
-    setState(() => _isSaving = true); // Ladezustand starten
+    setState(() => _isSaving = true);
 
     try {
-      await widget.onAdd(LanguagePair(
+      final String sourceLanguage = _selectedPair['source']!;
+      final String targetLanguage = _selectedPair['target']!;
+
+      final newPair = LanguagePair(
         id: '',
         title: _titleController.text.trim().isEmpty ? 'Neuer Kurs' : _titleController.text.trim(),
-        sourceLanguage: _sourceController.text.trim(),
-        sourceFlag: _sourceFlagController.text.trim(),
-        targetLanguage: _targetController.text.trim(),
-        targetFlag: _targetFlagController.text.trim(),
+        sourceLanguage: sourceLanguage,
+        sourceFlag: _selectedPair['sFlag']!,
+        targetLanguage: targetLanguage,
+        targetFlag: _selectedPair['tFlag']!,
         level: _levelController.text.trim(),
         createdAt: DateTime.now(),
-      ));
-      // Wenn erfolgreich: Dialog schließen
-      if (mounted) Navigator.of(context).pop();
+      );
+
+      // LanguagePair speichern (erledigt der aufrufende Kontext, also LanguageProvider)
+      await widget.onAdd(newPair);
+
+      // Optional: Katalog importieren, WENN angewählt
+      if (_importCatalog) {
+         // Da widget.onAdd nur den Future beendet, aber die ID erst im Provider gesetzt wird (wir geben sie dort zurück, ist aber hier nicht direkt greifbar).
+         // ACHTUNG: Das widget.onAdd(newPair) im Provider fügt es zu Firestore hinzu.
+         // Um importFromCatalog sauber aufzurufen, überlassen wir AddLanguageDialog die ID oder lagern den Import in den DashboardScreen aus.
+         // Da wir hier Zugriff auf Provider haben (wenn context gemountet):
+         
+         // In einem echten Refactoring würden wir addLanguagePair etwas sauberer zurückgeben lassen,
+         // aber wir machen es im Provider in "importFromCatalog" mit der ausgewählten Pair-ID.
+         // Da die ID nach onAdd aktuell im LanguageProvider 'selected' ist:
+      }
+
+      if (mounted) Navigator.of(context).pop(_importCatalog ? _selectedPair : null);
     } catch (e) {
-      // Wenn ein Fehler passiert: Ladezustand stoppen und Fehler zeigen
       if (mounted) {
         setState(() => _isSaving = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Speichern fehlgeschlagen: $e')),
+          SnackBar(content: Text('Fehler: $e')),
         );
       }
     }
@@ -72,24 +114,79 @@ class _AddLanguageDialogState extends State<AddLanguageDialog> {
             Text('Neue Sprache',
                 style: GoogleFonts.lexend(fontSize: 20, color: Colors.white, fontWeight: FontWeight.w700)),
             const SizedBox(height: 6),
-            Text('Definiere ein neues Sprachpaar.',
+            Text('Wähle ein Sprachpaar aus.',
                 style: GoogleFonts.lexend(fontSize: 13, color: AppColors.textSecondary)),
-            _field(_titleController, 'Kurs-Titel', hint: 'z.B. Mein Training'),
-            const SizedBox(height: 12),
             const SizedBox(height: 20),
-            Row(children: [
-              Expanded(child: _field(_sourceFlagController, 'Flag', hint: '🇩🇪')),
-              const SizedBox(width: 10),
-              Expanded(flex: 3, child: _field(_sourceController, 'Quellsprache', hint: 'Deutsch')),
-            ]),
-            const SizedBox(height: 12),
-            Row(children: [
-              Expanded(child: _field(_targetFlagController, 'Flag', hint: '🇬🇧')),
-              const SizedBox(width: 10),
-              Expanded(flex: 3, child: _field(_targetController, 'Zielsprache', hint: 'Englisch')),
-            ]),
-            const SizedBox(height: 12),
+            
+            _field(_titleController, 'Kurs-Titel', hint: 'z.B. Mein Training'),
+            const SizedBox(height: 16),
+            
+            Text('SPRACHPAAR', style: GoogleFonts.lexend(fontSize: 10, color: AppColors.textMuted,
+                fontWeight: FontWeight.w700, letterSpacing: 1)),
+            const SizedBox(height: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              decoration: BoxDecoration(
+                color: AppColors.background,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<Map<String, String>>(
+                  value: _selectedPair,
+                  isExpanded: true,
+                  dropdownColor: AppColors.surfaceLight,
+                  icon: const Icon(Icons.expand_more, color: AppColors.textMuted),
+                  style: GoogleFonts.lexend(fontSize: 14, color: Colors.white),
+                  onChanged: (newValue) {
+                    if (newValue != null) {
+                      setState(() => _selectedPair = newValue);
+                    }
+                  },
+                  items: _languagePairs.map((pair) {
+                    return DropdownMenuItem<Map<String, String>>(
+                      value: pair,
+                      child: Text(pair['label']!),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+            
+            const SizedBox(height: 16),
             _field(_levelController, 'Level (optional)', hint: 'A1, B2, N5 ...'),
+            const SizedBox(height: 20),
+
+            // Schalter für Katalog-Import
+            Container(
+               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+               decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+               ),
+               child: Row(
+                  children: [
+                     Expanded(
+                        child: Column(
+                           crossAxisAlignment: CrossAxisAlignment.start,
+                           children: [
+                              Text('Vokabeln importieren', 
+                                 style: GoogleFonts.lexend(fontSize: 13, color: Colors.white, fontWeight: FontWeight.w600)),
+                              Text('200 Wörter zum Startguthaben', 
+                                 style: GoogleFonts.lexend(fontSize: 10, color: AppColors.textMuted)),
+                           ],
+                        ),
+                     ),
+                     Switch(
+                        value: _importCatalog,
+                        onChanged: (val) => setState(() => _importCatalog = val),
+                        activeColor: AppColors.primary,
+                     )
+                  ],
+               ),
+            ),
+
             const SizedBox(height: 24),
             Row(children: [
               Expanded(child: OutlinedButton(
@@ -111,7 +208,7 @@ class _AddLanguageDialogState extends State<AddLanguageDialog> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
-                child: Text(_isSaving ? '...' : 'Hinzufügen',
+                child: Text(_isSaving ? 'Lade...' : 'Erstellen',
                     style: GoogleFonts.lexend(fontWeight: FontWeight.w700)),
               )),
             ]),
