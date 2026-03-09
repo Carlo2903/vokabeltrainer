@@ -8,6 +8,7 @@ import 'providers/vocabulary_provider.dart';
 import 'providers/language_provider.dart';
 import 'providers/session_provider.dart';
 import 'providers/auth_provider.dart';
+import 'providers/gamification_provider.dart';
 import 'ui/theme/app_theme.dart';
 import 'ui/widgets/app_shell.dart';
 import 'ui/screens/auth_screen.dart';
@@ -31,10 +32,15 @@ class VokabelApp extends StatelessWidget {
 
     return MultiProvider(
       providers: [
+        Provider<FirestoreService>.value(value: firestoreService),
         ChangeNotifierProvider(create: (_) => AuthProvider(authService)),
         ChangeNotifierProvider(create: (_) => LanguageProvider(firestoreService)),
         ChangeNotifierProvider(create: (_) => VocabularyProvider(firestoreService)),
         ChangeNotifierProvider(create: (_) => SessionProvider(trainingService)),
+        ChangeNotifierProxyProvider<AuthProvider, GamificationProvider>(
+          create: (context) => GamificationProvider(firestoreService, context.read<AuthProvider>()),
+          update: (context, auth, previous) => previous ?? GamificationProvider(firestoreService, auth),
+        ),
       ],
       child: MaterialApp(
         title: 'Vokabeltrainer',
@@ -72,8 +78,12 @@ class _AuthGateState extends State<_AuthGate> {
     // uid in Providers setzen, damit sie user-spezifische Daten laden
     final langProv = context.read<LanguageProvider>();
     final vocabProv = context.read<VocabularyProvider>();
+    final sessionProv = context.read<SessionProvider>();
+    final gamificationProv = context.read<GamificationProvider>();
+    
     langProv.setUid(uid);
     vocabProv.setUid(uid);
+    sessionProv.setGamificationProvider(gamificationProv);
   }
 
   @override

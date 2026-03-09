@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/vocabulary.dart';
 import '../models/vocabulary_stack.dart';
 import '../models/language_pair.dart';
+import '../models/user_profile.dart';
+import '../models/badge_model.dart';
 
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -65,6 +67,14 @@ class FirestoreService {
     return doc.data();
   }
 
+  Future<UserProfile?> getUserProfileModel(String uid) async {
+    final doc = await _db.collection('users').doc(uid).get();
+    if (doc.exists) {
+      return UserProfile.fromFirestore(doc);
+    }
+    return null;
+  }
+
   Future<void> saveUserProfile(String uid, Map<String, dynamic> data) async {
     await _db
         .collection('users')
@@ -93,5 +103,35 @@ class FirestoreService {
         .get();
 
     return snapshot.docs.map((doc) => doc.data()).toList();
+  }
+
+  // ── Gamification ──────────────────────────────────────────────────────────
+
+  Future<List<UserProfile>> getLeaderboard({int limit = 10}) async {
+    final snapshot = await _db
+        .collection('users')
+        .orderBy('xp', descending: true)
+        .limit(limit)
+        .get();
+    return snapshot.docs.map((doc) => UserProfile.fromFirestore(doc)).toList();
+  }
+
+  Stream<List<BadgeModel>> watchBadges(String uid) {
+    return _db
+        .collection('users')
+        .doc(uid)
+        .collection('badges')
+        .orderBy('unlockedAt', descending: true)
+        .snapshots()
+        .map((snap) => snap.docs.map((doc) => BadgeModel.fromFirestore(doc)).toList());
+  }
+
+  Future<void> unlockBadge(String uid, BadgeModel badge) async {
+    await _db
+        .collection('users')
+        .doc(uid)
+        .collection('badges')
+        .doc(badge.id) // using fixed ID prevents duplicates
+        .set(badge.toFirestore());
   }
 }

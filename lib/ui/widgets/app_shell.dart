@@ -5,6 +5,8 @@ import '../screens/dashboard_screen.dart';
 import '../screens/stack_overview_screen.dart';
 import '../screens/add_vocabulary_screen.dart';
 import '../screens/profile_screen.dart';
+import '../screens/leaderboard_screen.dart';
+import '../screens/success_review_screen.dart';
 import '../theme/app_theme.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/vocabulary_provider.dart';
@@ -21,15 +23,15 @@ class _AppShellState extends State<AppShell> {
 
   static const _tabs = [
     _TabItem(icon: Icons.grid_view_rounded, label: 'Lernen'),
-    _TabItem(icon: Icons.translate_rounded, label: 'Wörterbuch'),
-    _TabItem(icon: Icons.analytics_rounded, label: 'Statistiken'),
+    _TabItem(icon: Icons.emoji_events_rounded, label: 'Ligen'),
+    _TabItem(icon: Icons.military_tech_rounded, label: 'Erfolge'),
     _TabItem(icon: Icons.account_circle_rounded, label: 'Profil'),
   ];
 
   final _screens = const [
     DashboardScreen(),
-    _PlaceholderTab(title: 'Dictionary', icon: Icons.translate_rounded),
-    StackOverviewScreen(),
+    LeaderboardScreen(),
+    SuccessReviewScreen(),
     ProfileScreen(),
   ];
 

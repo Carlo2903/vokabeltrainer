@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import '../models/vocabulary.dart';
 import '../services/training_service.dart';
+import 'gamification_provider.dart';
 
 enum TranslationDirection { standard, reverse, mixed }
 
 class SessionProvider extends ChangeNotifier {
   final TrainingService _trainingService;
+  GamificationProvider? _gamificationProvider;
 
   SessionProvider(this._trainingService);
+
+  void setGamificationProvider(GamificationProvider gamificationProvider) {
+    _gamificationProvider = gamificationProvider;
+  }
 
   List<Vocabulary> _queue = [];
   int _currentIndex = 0;
@@ -86,6 +92,10 @@ class SessionProvider extends ChangeNotifier {
     final word = currentWord;
     if (word == null) return;
     await _trainingService.markCorrect(uid, word);
+    
+    // Gamification Integration
+    await _gamificationProvider?.addXP(10);
+    
     _correctCount++;
     _advance();
   }
@@ -103,6 +113,8 @@ class SessionProvider extends ChangeNotifier {
       _currentIndex++;
     } else {
       _isFinished = true;
+      // Streak updates on session completion
+      _gamificationProvider?.updateStreakOnSessionComplete();
     }
     notifyListeners();
   }

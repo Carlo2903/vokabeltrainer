@@ -3,7 +3,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/session_provider.dart';
+import '../../providers/gamification_provider.dart';
 import '../theme/app_theme.dart';
+import 'success_review_screen.dart';
+import 'level_up_screen.dart';
 
 class ActiveLearningScreen extends StatelessWidget {
   const ActiveLearningScreen({super.key});
@@ -94,11 +97,31 @@ class ActiveLearningScreen extends StatelessWidget {
                   )),
                   const SizedBox(width: 14),
                   Expanded(child: _actionBtn(
-                    label: 'Correct', sublabel: '+15 POINTS',
+                    label: 'Correct', sublabel: '+10 POINTS',
                     icon: Icons.check, color: const Color(0xFF22C55E),
-                    onTap: () {
+                    onTap: () async {
                       final uid = context.read<AuthProvider>().currentUser?.uid;
-                      if (uid != null) session.markCorrect(uid);
+                      if (uid != null) {
+                        final gamification = context.read<GamificationProvider>();
+                        final oldLevel = gamification.currentLevel;
+                        
+                        await session.markCorrect(uid);
+                        
+                        final newLevel = gamification.currentLevel;
+                        if (newLevel > oldLevel && context.mounted) {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => LevelUpScreen(
+                                newLevel: newLevel,
+                                earnedXp: 10, // Assuming 10 per word
+                                currentXp: gamification.currentXP,
+                                nextLevelXp: gamification.xpForNextLevel,
+                                masteredWords: session.correctCount,
+                              ),
+                            ),
+                          );
+                        }
+                      }
                     },
                   )),
                 ]),
@@ -238,11 +261,30 @@ class ActiveLearningScreen extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    session.resetSession();
-                    Navigator.of(context).popUntil((r) => r.isFirst);
+                    // Navigate to SuccessReviewScreen
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (_) => const SuccessReviewScreen()),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary, foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: Text('Erfolge ansehen',
+                      style: GoogleFonts.lexend(fontWeight: FontWeight.w700)),
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: TextButton(
+                  onPressed: () {
+                    session.resetSession();
+                    Navigator.of(context).popUntil((r) => r.isFirst);
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.textSecondary,
                     padding: const EdgeInsets.symmetric(vertical: 18),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
