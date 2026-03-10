@@ -13,11 +13,24 @@ class LeaderboardScreen extends StatefulWidget {
 
 class _LeaderboardScreenState extends State<LeaderboardScreen> {
   late Future<List<UserProfile>> _leaderboardFuture;
+  int _selectedTabIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _leaderboardFuture = context.read<FirestoreService>().getLeaderboard(limit: 10);
+    _loadData();
+  }
+
+  void _loadData() {
+    _leaderboardFuture = context.read<FirestoreService>().getLeaderboard(limit: 100);
+  }
+
+  void _setTab(int index) {
+    if (_selectedTabIndex == index) return;
+    setState(() {
+      _selectedTabIndex = index;
+      _loadData();
+    });
   }
 
   @override
@@ -42,9 +55,8 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
           preferredSize: const Size.fromHeight(48),
           child: Row(
             children: [
-              _buildTabItem('Wöchentlich', true),
-              _buildTabItem('Monatlich', false),
-              _buildTabItem('Freunde', false),
+              _buildTabItem('Wöchentlich', _selectedTabIndex == 0, () => _setTab(0)),
+              _buildTabItem('Monatlich', _selectedTabIndex == 1, () => _setTab(1)),
             ],
           ),
         ),
@@ -77,17 +89,14 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
-                  child: SizedBox(
-                    height: 220,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (top2 != null) Expanded(child: _buildPodiumItem(top2, 2, 100, Colors.grey.shade400)),
-                        if (top1 != null) Expanded(child: _buildPodiumItem(top1, 1, 140, const Color(0xFF13ec5b))),
-                        if (top3 != null) Expanded(child: _buildPodiumItem(top3, 3, 70, Colors.orange.shade400)),
-                      ],
-                    ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (top2 != null) Expanded(child: _buildPodiumItem(top2, 2, 110, Colors.grey.shade400)),
+                      if (top1 != null) Expanded(child: _buildPodiumItem(top1, 1, 150, const Color(0xFF13ec5b))),
+                      if (top3 != null) Expanded(child: _buildPodiumItem(top3, 3, 80, Colors.orange.shade400)),
+                    ],
                   ),
                 ),
               ),
@@ -112,24 +121,27 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
     );
   }
 
-  Widget _buildTabItem(String title, bool isSelected) {
+  Widget _buildTabItem(String title, bool isSelected, VoidCallback onTap) {
     return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              color: isSelected ? const Color(0xFF13ec5b) : Colors.transparent,
-              width: 2,
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: isSelected ? const Color(0xFF13ec5b) : Colors.transparent,
+                width: 2,
+              ),
             ),
           ),
-        ),
-        child: Text(
-          title,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: isSelected ? const Color(0xFF13ec5b) : Colors.grey,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+          child: Text(
+            title,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: isSelected ? const Color(0xFF13ec5b) : Colors.grey,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+            ),
           ),
         ),
       ),
@@ -139,6 +151,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
   Widget _buildPodiumItem(UserProfile user, int rank, double height, Color color) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
+      mainAxisSize: MainAxisSize.min,
       children: [
         if (rank == 1)
           const Icon(Icons.workspace_premium, color: Colors.amber, size: 28),

@@ -113,7 +113,14 @@ class FirestoreService {
         .orderBy('xp', descending: true)
         .limit(limit)
         .get();
-    return snapshot.docs.map((doc) => UserProfile.fromFirestore(doc)).toList();
+    final users = snapshot.docs.map((doc) => UserProfile.fromFirestore(doc)).toList();
+    
+    // Sekundäres Sortierkriterium bei Punktegleichstand (Alphabetisch nach Name)
+    users.sort((a, b) {
+      if (b.xp != a.xp) return b.xp.compareTo(a.xp);
+      return a.displayName.toLowerCase().compareTo(b.displayName.toLowerCase());
+    });
+    return users;
   }
 
   Stream<List<BadgeModel>> watchBadges(String uid) {
