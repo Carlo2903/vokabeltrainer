@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
@@ -21,9 +22,29 @@ class AuthProvider extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   void _init() {
-    _subscription = _authService.authStateChanges.listen((user) {
+    _subscription = _authService.authStateChanges.listen((user) async {
       _currentUser = user;
       _isLoading = false;
+
+      if (user != null) {
+        // Profilbild aus Firestore laden (Base64 steht dort, nicht in Firebase Auth)
+        try {
+          final doc = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .get();
+          final firestorePhotoUrl = doc.data()?['photoUrl'] as String?;
+          if (firestorePhotoUrl != null && firestorePhotoUrl.isNotEmpty) {
+            _photoUrlOverride = firestorePhotoUrl;
+          }
+        } catch (_) {
+          // Kein Netzwerk o.ä. – weiter mit Firebase Auth photoURL
+        }
+      } else {
+        // Ausgeloggt → Override zurücksetzen
+        _photoUrlOverride = null;
+      }
+
       notifyListeners();
     });
   }
@@ -78,8 +99,24 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> updatePhotoUrl(String url) async {
     await _authService.updatePhotoUrl(url);
+    // Reload so the cached User object gets the new photoURL
+    await _authService.currentUser?.reload();
+    _currentUser = _authService.currentUser;
     notifyListeners();
   }
+
+  /// Für Base64-Profilbilder: speichert nur lokal im Provider (nicht in Firebase Auth,
+  /// da Base64-Strings zu gross für das photoURL-Feld sind).
+  void updatePhotoUrlLocalOnly(String dataUri) {
+    // Wir merken uns die URL im State damit alle Consumer rebuilden
+    _photoUrlOverride = dataUri;
+    notifyListeners();
+  }
+
+  String? _photoUrlOverride;
+
+  /// Gibt die photoURL zurück – priorisiert den lokalen Override (Base64)
+  String? get photoUrl => _photoUrlOverride ?? _currentUser?.photoURL;
 
   // ── Helper ───────────────────────────────────────────────────────────────
 

@@ -1,17 +1,17 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:convert';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/vocabulary_provider.dart';
 import '../../services/firestore_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/user_avatar.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -109,7 +109,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       source: source,
       maxWidth: 512,
       maxHeight: 512,
-      imageQuality: 85,
+      imageQuality: 80,
     );
     if (picked == null) return;
 
@@ -117,29 +117,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     try {
       final auth = context.read<AuthProvider>();
-      final uid = auth.currentUser!.uid;
+      final uid = auth.currentUser?.uid;
       if (uid == null) return;
 
-      // Bild zu Firebase Storage hochladen
-      final ref = FirebaseStorage.instance
-          .ref()
-          .child('profiles')
-          .child('$uid.jpg');
+      // Bild als Base64 enkodieren und als Data-URI speichern
+      final bytes = await File(picked.path).readAsBytes();
+      final base64Str = base64Encode(bytes);
+      final dataUri = 'data:image/jpeg;base64,$base64Str';
 
-      await ref.putFile(File(picked.path));
-      final downloadUrl = await ref.getDownloadURL();
+      // Nur in Firestore speichern (kein Firebase Storage nötig)
+      await context.read<FirestoreService>().saveUserProfile(uid, {'photoUrl': dataUri});
+      auth.updatePhotoUrlLocalOnly(dataUri);
 
-      // URL in Auth & Firestore speichern
-      await auth.updatePhotoUrl(downloadUrl);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Profilbild erfolgreich aktualisiert!'),
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Bild konnte nicht hochgeladen werden: $e'),
+            content: Text('Fehler: $e'),
             backgroundColor: AppColors.danger,
             behavior: SnackBarBehavior.floating,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         );
       }
@@ -259,7 +266,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final user = auth.currentUser;
         final displayName = user?.displayName ?? 'User';
         final email = user?.email ?? '';
-        final photoUrl = user?.photoURL;
+        // Nutzt auth.photoUrl damit Base64-Override sofort sichtbar ist
+        final photoUrl = auth.photoUrl;
 
         return Scaffold(
           backgroundColor: AppColors.background,
@@ -313,7 +321,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                 ],
                               ),
-                              child: _buildAvatar(photoUrl, displayName, user),
+                              child: UserAvatar(
+                                photoUrl: photoUrl,
+                                displayName: displayName,
+                                radius: 60,
+                                fallbackBackground: Colors.transparent,
+                              ),
                             ),
                             // Edit-Button
                             Positioned(
@@ -469,37 +482,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildAvatar(String? photoUrl, String displayName, User? user) {
-    if (photoUrl != null && photoUrl.isNotEmpty) {
-      return ClipOval(
-        child: Image.network(
-          photoUrl,
-          width: 120,
-          height: 120,
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => _initials(displayName),
-        ),
-      );
-    }
-    return _initials(displayName);
-  }
-
-  Widget _initials(String name) {
-    final parts = name.trim().split(' ');
-    final initials = parts.length >= 2
-        ? '${parts.first[0]}${parts.last[0]}'.toUpperCase()
-        : name.isNotEmpty
-            ? name[0].toUpperCase()
-            : '?';
-    return Center(
-      child: Text(
-        initials,
-        style: GoogleFonts.lexend(
-            fontSize: 36, color: Colors.white, fontWeight: FontWeight.w700),
-      ),
     );
   }
 

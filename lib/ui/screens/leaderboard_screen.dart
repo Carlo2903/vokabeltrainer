@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../models/user_profile.dart';
 import '../../services/firestore_service.dart';
 import '../../providers/auth_provider.dart';
+import '../widgets/user_avatar.dart';
 
 class LeaderboardScreen extends StatefulWidget {
   const LeaderboardScreen({Key? key}) : super(key: key);
@@ -159,20 +160,12 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
           clipBehavior: Clip.none,
           alignment: Alignment.bottomCenter,
           children: [
-            Container(
-              width: rank == 1 ? 70 : 60,
-              height: rank == 1 ? 70 : 60,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: color, width: 3),
-                image: user.photoUrl != null
-                    ? DecorationImage(image: NetworkImage(user.photoUrl!), fit: BoxFit.cover)
-                    : null,
-                color: Colors.grey.shade800,
-              ),
-              child: user.photoUrl == null
-                  ? Icon(Icons.person, color: Colors.white, size: rank == 1 ? 36 : 30)
-                  : null,
+            UserAvatar(
+              photoUrl: user.photoUrl,
+              displayName: user.displayName,
+              radius: rank == 1 ? 35 : 30,
+              borderColor: color,
+              borderWidth: 3,
             ),
             Positioned(
               bottom: -10,
@@ -245,13 +238,13 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
             ),
           ),
           const SizedBox(width: 12),
-          CircleAvatar(
+          UserAvatar(
+            photoUrl: user.photoUrl,
+            displayName: user.displayName,
             radius: 20,
-            backgroundColor: isCurrent ? Colors.black : Colors.grey.shade800,
-            backgroundImage: user.photoUrl != null ? NetworkImage(user.photoUrl!) : null,
-            child: user.photoUrl == null
-                ? Icon(Icons.person, color: isCurrent ? const Color(0xFF13ec5b) : Colors.white, size: 20)
-                : null,
+            borderColor: isCurrent ? Colors.black : Colors.grey.shade800,
+            borderWidth: 2,
+            fallbackBackground: isCurrent ? Colors.black : Colors.grey.shade800,
           ),
           const SizedBox(width: 12),
           Expanded(

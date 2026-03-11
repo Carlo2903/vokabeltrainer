@@ -181,7 +181,7 @@ class ActiveLearningScreen extends StatelessWidget {
             session.isFlipped ? session.backText : session.frontText,
             textAlign: TextAlign.center,
             style: GoogleFonts.lexend(
-                fontSize: session.isFlipped ? 28 : 44,
+                fontSize: 36,
                 color: Colors.white, fontWeight: FontWeight.w700, letterSpacing: -1),
           ),
           if (session.isFlipped && (session.currentWord?.description ?? '').isNotEmpty) ...[

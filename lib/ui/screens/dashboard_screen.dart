@@ -7,6 +7,7 @@ import '../../providers/language_provider.dart';
 import '../../providers/vocabulary_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/add_language_dialog.dart';
+import '../widgets/user_avatar.dart';
 
 class DashboardScreen extends StatelessWidget {
   final VoidCallback? onProfileTap;
@@ -64,8 +65,7 @@ class DashboardScreen extends StatelessWidget {
     final auth = context.watch<AuthProvider>();
     final user = auth.currentUser;
     final displayName = user?.displayName ?? 'Vokabeltrainer';
-    final photoUrl = user?.photoURL;
-    final initials = displayName.trim().isNotEmpty ? displayName.trim()[0].toUpperCase() : 'V';
+    final photoUrl = auth.photoUrl; // Nutzt Base64-Override wenn vorhanden
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -83,30 +83,13 @@ class DashboardScreen extends StatelessWidget {
         ),
         GestureDetector(
           onTap: onProfileTap,
-          child: Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: const LinearGradient(
-                  colors: [AppColors.primary, AppColors.accent]),
-            ),
-            child: photoUrl != null && photoUrl.isNotEmpty
-                ? ClipOval(
-                    child: Image.network(
-                      photoUrl,
-                      width: 48,
-                      height: 48,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) =>
-                          Center(child: Text(initials,
-                              style: GoogleFonts.lexend(fontSize: 18, color: Colors.white, fontWeight: FontWeight.w700))),
-                    ),
-                  )
-                : Center(
-                    child: Text(initials,
-                        style: GoogleFonts.lexend(fontSize: 18, color: Colors.white, fontWeight: FontWeight.w700)),
-                  ),
+          child: UserAvatar(
+            photoUrl: photoUrl,
+            displayName: displayName,
+            radius: 24,
+            borderColor: AppColors.primary,
+            borderWidth: 2,
+            fallbackBackground: AppColors.primary,
           ),
         ),
       ],
@@ -350,7 +333,6 @@ class DashboardScreen extends StatelessWidget {
     final reviewCount = vocabProv.review.length;
     final masteredCount = vocabProv.mastered.length;
     final total = vocabProv.totalWords;
-    final masteryPercent = total == 0 ? 0.0 : vocabProv.masteryPercent;
 
 
     return Container(

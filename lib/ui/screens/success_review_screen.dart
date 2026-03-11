@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/gamification_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../models/badge_model.dart';
+import '../widgets/user_avatar.dart';
 
 class SuccessReviewScreen extends StatelessWidget {
   const SuccessReviewScreen({Key? key}) : super(key: key);
@@ -57,23 +59,17 @@ class SuccessReviewScreen extends StatelessWidget {
               padding: const EdgeInsets.all(24.0),
               child: Column(
                 children: [
+                  // Profilbild – unterstützt Base64, URL und Initialen
                   Stack(
                     alignment: Alignment.bottomRight,
                     children: [
-                      Container(
-                        width: 120,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: const Color(0xFF13ec5b).withOpacity(0.3), width: 4),
-                          color: theme.cardColor,
-                          image: user.photoUrl != null
-                              ? DecorationImage(image: NetworkImage(user.photoUrl!), fit: BoxFit.cover)
-                              : null,
-                        ),
-                        child: user.photoUrl == null
-                            ? const Icon(Icons.person, size: 60, color: Colors.grey)
-                            : null,
+                      UserAvatar(
+                        photoUrl: context.watch<AuthProvider>().photoUrl ?? user.photoUrl,
+                        displayName: user.displayName,
+                        radius: 60,
+                        borderColor: const Color(0xFF13ec5b).withOpacity(0.3),
+                        borderWidth: 4,
+                        fallbackBackground: theme.cardColor,
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
