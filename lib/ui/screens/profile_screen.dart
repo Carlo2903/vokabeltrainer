@@ -12,6 +12,7 @@ import '../../providers/vocabulary_provider.dart';
 import '../../services/firestore_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/user_avatar.dart';
+import 'settings_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -286,6 +287,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           fontWeight: FontWeight.w700)),
                   centerTitle: true,
                   automaticallyImplyLeading: false,
+                  actions: [
+                    IconButton(
+                      icon: const Icon(Icons.settings_outlined, color: AppColors.textSecondary),
+                      tooltip: 'Einstellungen',
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                      ),
+                    ),
+                  ],
                 ),
 
                 SliverToBoxAdapter(

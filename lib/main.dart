@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'services/firestore_service.dart';
+import 'services/notification_service.dart';
 import 'services/training_service.dart';
 import 'services/auth_service.dart';
 import 'providers/vocabulary_provider.dart';
@@ -18,6 +19,7 @@ import 'ui/screens/active_learning_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  await NotificationService().init();
   runApp(const VokabelApp());
 }
 

@@ -78,6 +78,46 @@ class AuthService {
     }
   }
 
+  /// Ändert die E-Mail-Adresse. Erfordert Re-Authentifizierung mit currentPassword.
+  Future<void> updateEmail(String newEmail, String currentPassword) async {
+    final user = _auth.currentUser;
+    if (user == null || user.email == null) throw Exception('Nicht eingeloggt');
+    // Re-Authentifizierung
+    final credential = EmailAuthProvider.credential(
+        email: user.email!, password: currentPassword);
+    await user.reauthenticateWithCredential(credential);
+    await user.verifyBeforeUpdateEmail(newEmail.trim());
+    final uid = user.uid;
+    // Firestore wird erst nach Verifizierung aktualisiert (Webhook)
+    await _db.collection('users').doc(uid).update({'pendingEmail': newEmail.trim()});
+  }
+
+  /// Ändert das Passwort. Erfordert das aktuelle Passwort zur Re-Authentifizierung.
+  Future<void> updatePassword(String currentPassword, String newPassword) async {
+    final user = _auth.currentUser;
+    if (user == null || user.email == null) throw Exception('Nicht eingeloggt');
+    final credential = EmailAuthProvider.credential(
+        email: user.email!, password: currentPassword);
+    await user.reauthenticateWithCredential(credential);
+    await user.updatePassword(newPassword);
+  }
+
+  /// Speichert das tägliche Lernziel (Anzahl Vokabeln) in Firestore.
+  Future<void> saveDailyGoal(int goal) async {
+    final uid = _auth.currentUser?.uid;
+    if (uid != null) {
+      await _db.collection('users').doc(uid).update({'dailyGoal': goal});
+    }
+  }
+
+  /// Gibt das tägliche Lernziel des Nutzers aus Firestore zurück.
+  Future<int> getDailyGoal() async {
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) return 20;
+    final doc = await _db.collection('users').doc(uid).get();
+    return (doc.data()?['dailyGoal'] as int?) ?? 20;
+  }
+
   // ── Abmelden ─────────────────────────────────────────────────────────────
 
   Future<void> signOut() async {

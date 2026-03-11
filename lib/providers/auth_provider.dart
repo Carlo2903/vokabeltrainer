@@ -99,16 +99,13 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> updatePhotoUrl(String url) async {
     await _authService.updatePhotoUrl(url);
-    // Reload so the cached User object gets the new photoURL
     await _authService.currentUser?.reload();
     _currentUser = _authService.currentUser;
     notifyListeners();
   }
 
-  /// Für Base64-Profilbilder: speichert nur lokal im Provider (nicht in Firebase Auth,
-  /// da Base64-Strings zu gross für das photoURL-Feld sind).
+  /// Für Base64-Profilbilder
   void updatePhotoUrlLocalOnly(String dataUri) {
-    // Wir merken uns die URL im State damit alle Consumer rebuilden
     _photoUrlOverride = dataUri;
     notifyListeners();
   }
@@ -117,6 +114,20 @@ class AuthProvider extends ChangeNotifier {
 
   /// Gibt die photoURL zurück – priorisiert den lokalen Override (Base64)
   String? get photoUrl => _photoUrlOverride ?? _currentUser?.photoURL;
+
+  /// Ändert die E-Mail mit Re-Authentifizierung. Wirft FirebaseAuthException bei Fehlern.
+  Future<void> changeEmail(String newEmail, String currentPassword) async {
+    await _authService.updateEmail(newEmail, currentPassword);
+  }
+
+  /// Ändert das Passwort mit Re-Authentifizierung.
+  Future<void> changePassword(String currentPassword, String newPassword) async {
+    await _authService.updatePassword(currentPassword, newPassword);
+  }
+
+  /// Tägliches Lernziel speichern / lesen
+  Future<void> saveDailyGoal(int goal) => _authService.saveDailyGoal(goal);
+  Future<int> getDailyGoal() => _authService.getDailyGoal();
 
   // ── Helper ───────────────────────────────────────────────────────────────
 
