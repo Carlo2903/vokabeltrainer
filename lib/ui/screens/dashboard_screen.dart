@@ -195,6 +195,159 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
+  /// Zeigt ein Menü mit Optionen zum Löschen oder Zurücksetzen eines Kurses
+  void _showCourseOptions(BuildContext context, LanguagePair pair,
+      LanguageProvider langProv, VocabularyProvider vocabProv) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 36),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(children: [
+              Text(pair.sourceFlag, style: const TextStyle(fontSize: 22)),
+              const SizedBox(width: 10),
+              Text(pair.title,
+                  style: GoogleFonts.lexend(
+                      fontSize: 18, color: Colors.white, fontWeight: FontWeight.w700)),
+            ]),
+            const SizedBox(height: 4),
+            Text('→ ${pair.targetLanguage}',
+                style: GoogleFonts.lexend(fontSize: 12, color: AppColors.textSecondary)),
+            const SizedBox(height: 20),
+            const Divider(color: AppColors.border),
+            const SizedBox(height: 12),
+            // Reset-Option
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: Container(
+                width: 44, height: 44,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.refresh_rounded, color: AppColors.primary),
+              ),
+              title: Text('Kurs zurücksetzen',
+                  style: GoogleFonts.lexend(color: Colors.white, fontWeight: FontWeight.w600)),
+              subtitle: Text('Alle Wörter zurück in den Lernstapel',
+                  style: GoogleFonts.lexend(fontSize: 11, color: AppColors.textSecondary)),
+              onTap: () {
+                Navigator.pop(ctx);
+                _confirmReset(context, pair, vocabProv);
+              },
+            ),
+            const SizedBox(height: 8),
+            // Löschen-Option
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: Container(
+                width: 44, height: 44,
+                decoration: BoxDecoration(
+                  color: Colors.red.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.delete_outline_rounded, color: Colors.red),
+              ),
+              title: Text('Kurs löschen',
+                  style: GoogleFonts.lexend(color: Colors.red, fontWeight: FontWeight.w600)),
+              subtitle: Text('Kurs und alle Vokabeln dauerhaft entfernen',
+                  style: GoogleFonts.lexend(fontSize: 11, color: AppColors.textSecondary)),
+              onTap: () {
+                Navigator.pop(ctx);
+                _confirmDelete(context, pair, langProv);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _confirmDelete(BuildContext context, LanguagePair pair, LanguageProvider langProv) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text('Kurs löschen?',
+            style: GoogleFonts.lexend(color: Colors.white, fontWeight: FontWeight.w700)),
+        content: Text(
+            'Möchtest du "${pair.title}" und alle ${pair.sourceLanguage}→${pair.targetLanguage} Vokabeln wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
+            style: GoogleFonts.lexend(color: AppColors.textSecondary, fontSize: 14)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text('Abbrechen',
+                style: GoogleFonts.lexend(color: AppColors.textMuted)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text('Löschen', style: GoogleFonts.lexend(color: Colors.white, fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
+    if (ok == true && context.mounted) {
+      await langProv.deleteLanguagePair(pair.id);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('"${pair.title}" wurde gelöscht.'),
+          backgroundColor: Colors.red.shade700,
+        ));
+      }
+    }
+  }
+
+  Future<void> _confirmReset(BuildContext context, LanguagePair pair, VocabularyProvider vocabProv) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text('Kurs zurücksetzen?',
+            style: GoogleFonts.lexend(color: Colors.white, fontWeight: FontWeight.w700)),
+        content: Text(
+            'Alle Vokabeln in "${pair.title}" werden zurück in den Lernstapel verschoben. Dein Fortschritt geht verloren.',
+            style: GoogleFonts.lexend(color: AppColors.textSecondary, fontSize: 14)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text('Abbrechen',
+                style: GoogleFonts.lexend(color: AppColors.textMuted)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text('Zurücksetzen', style: GoogleFonts.lexend(color: Colors.white, fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
+    if (ok == true && context.mounted) {
+      await vocabProv.resetCourse(pair.id);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('"${pair.title}" wurde zurückgesetzt.'),
+          backgroundColor: AppColors.primary,
+        ));
+      }
+    }
+  }
+
   Widget _buildActiveCourseCard(
       BuildContext context, LanguagePair pair, VocabularyProvider vocabProv) {
     final trainingCount = vocabProv.training.length;
@@ -202,7 +355,6 @@ class DashboardScreen extends StatelessWidget {
     final masteredCount = vocabProv.mastered.length;
     final total = vocabProv.totalWords;
     final masteryPercent = total == 0 ? 0.0 : vocabProv.masteryPercent;
-
 
     return Container(
       decoration: BoxDecoration(
@@ -239,9 +391,17 @@ class DashboardScreen extends StatelessWidget {
                           fontSize: 11, color: AppColors.textSecondary)),
                 ]),
               ]),
-              Text('${(masteryPercent * 100).toStringAsFixed(0)}% insgesamt',
-                  style: GoogleFonts.lexend(
-                      fontSize: 11, color: AppColors.primary, fontWeight: FontWeight.w700)),
+              Consumer<LanguageProvider>(
+                builder: (context, langProv, _) => IconButton(
+                  onPressed: () => _showCourseOptions(context, pair, langProv, vocabProv),
+                  icon: const Icon(Icons.more_vert, color: AppColors.textSecondary),
+                  tooltip: 'Kursoptionen',
+                  style: IconButton.styleFrom(
+                    backgroundColor: AppColors.surfaceLight,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 20),
@@ -322,7 +482,7 @@ class DashboardScreen extends StatelessWidget {
       child: GestureDetector(
         onTap: () => langProv.selectPair(pair),
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
             color: AppColors.surface.withValues(alpha: 0.4),
             borderRadius: BorderRadius.circular(20),
@@ -347,7 +507,13 @@ class DashboardScreen extends StatelessWidget {
                 Text('→ ${pair.targetLanguage}',
                     style: GoogleFonts.lexend(fontSize: 12, color: AppColors.textMuted)),
               ])),
-              const Icon(Icons.chevron_right, color: AppColors.textMuted),
+              Consumer<VocabularyProvider>(
+                builder: (context, vocabProv, _) => IconButton(
+                  onPressed: () => _showCourseOptions(context, pair, langProv, vocabProv),
+                  icon: const Icon(Icons.more_vert, color: AppColors.textMuted, size: 20),
+                  tooltip: 'Kursoptionen',
+                ),
+              ),
             ],
           ),
         ),

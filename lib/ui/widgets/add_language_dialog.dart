@@ -19,8 +19,18 @@ class _AddLanguageDialogState extends State<AddLanguageDialog> {
   bool _isSaving = false;
   bool _importCatalog = true;
 
-  // Vordefinierte Optionen
-  final List<Map<String, String>> _languagePairs = [
+  // Vordefinierte Optionen – Index-basiert, da Flutter Maps nicht per == vergleicht
+  static const List<Map<String, String>> _languagePairs = [
+    {
+      'label': 'Deutsch 🇩🇪 → Englisch 🇬🇧',
+      'source': 'Deutsch', 'sFlag': '🇩🇪',
+      'target': 'Englisch', 'tFlag': '🇬🇧',
+    },
+    {
+      'label': 'Deutsch 🇩🇪 → Spanisch 🇪🇸',
+      'source': 'Deutsch', 'sFlag': '🇩🇪',
+      'target': 'Spanisch', 'tFlag': '🇪🇸',
+    },
     {
       'label': 'Englisch 🇬🇧 → Deutsch 🇩🇪',
       'source': 'Englisch', 'sFlag': '🇬🇧',
@@ -43,12 +53,13 @@ class _AddLanguageDialogState extends State<AddLanguageDialog> {
     },
   ];
 
-  late Map<String, String> _selectedPair;
+  int _selectedIndex = 0;
+
+  Map<String, String> get _selectedPair => _languagePairs[_selectedIndex];
 
   @override
   void initState() {
     super.initState();
-    _selectedPair = _languagePairs.first;
   }
 
   @override
@@ -132,23 +143,21 @@ class _AddLanguageDialogState extends State<AddLanguageDialog> {
                 border: Border.all(color: AppColors.border),
               ),
               child: DropdownButtonHideUnderline(
-                child: DropdownButton<Map<String, String>>(
-                  value: _selectedPair,
+                child: DropdownButton<int>(
+                  value: _selectedIndex,
                   isExpanded: true,
                   dropdownColor: AppColors.surfaceLight,
                   icon: const Icon(Icons.expand_more, color: AppColors.textMuted),
                   style: GoogleFonts.lexend(fontSize: 14, color: Colors.white),
-                  onChanged: (newValue) {
-                    if (newValue != null) {
-                      setState(() => _selectedPair = newValue);
-                    }
+                  onChanged: (idx) {
+                    if (idx != null) setState(() => _selectedIndex = idx);
                   },
-                  items: _languagePairs.map((pair) {
-                    return DropdownMenuItem<Map<String, String>>(
-                      value: pair,
-                      child: Text(pair['label']!),
+                  items: List.generate(_languagePairs.length, (i) {
+                    return DropdownMenuItem<int>(
+                      value: i,
+                      child: Text(_languagePairs[i]['label']!),
                     );
-                  }).toList(),
+                  }),
                 ),
               ),
             ),

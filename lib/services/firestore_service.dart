@@ -57,7 +57,23 @@ class FirestoreService {
   }
 
   Future<void> deleteLanguagePair(String uid, String pairId) async {
-    await _vocabLists(uid).doc(pairId).delete();
+    // Zuerst alle Vokabeln löschen (Subcollection wird nicht automatisch gelöscht)
+    final vocabs = await _vocabularies(uid, pairId).get();
+    final batch = _db.batch();
+    for (final doc in vocabs.docs) {
+      batch.delete(doc.reference);
+    }
+    batch.delete(_vocabLists(uid).doc(pairId));
+    await batch.commit();
+  }
+
+  Future<void> resetLanguagePair(String uid, String pairId) async {
+    final vocabs = await _vocabularies(uid, pairId).get();
+    final batch = _db.batch();
+    for (final doc in vocabs.docs) {
+      batch.update(doc.reference, {'stack': 'training'});
+    }
+    await batch.commit();
   }
 
   // ── Userprofil ────────────────────────────────────────────────────────────

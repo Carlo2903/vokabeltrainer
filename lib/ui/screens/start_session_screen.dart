@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../providers/vocabulary_provider.dart';
 import '../../providers/session_provider.dart';
+import '../../providers/language_provider.dart';
 import '../theme/app_theme.dart';
 
 class StartSessionScreen extends StatelessWidget {
@@ -160,9 +161,13 @@ class StartSessionScreen extends StatelessWidget {
   }
 
   Widget _buildDirectionSelector(BuildContext context, SessionProvider prov) {
+    final pair = context.watch<LanguageProvider>().selected;
+    final src = pair?.sourceFlag ?? '🏳️';
+    final tgt = pair?.targetFlag ?? '🏳️';
+
     final options = [
-      (TranslationDirection.standard, 'DE→EN', 'Standard'),
-      (TranslationDirection.reverse, 'EN→DE', 'Umkehren'),
+      (TranslationDirection.standard, '$src→$tgt', 'Standard'),
+      (TranslationDirection.reverse, '$tgt→$src', 'Umkehren'),
       (TranslationDirection.mixed, '⇄', 'Gemischt'),
     ];
     return Row(

@@ -138,6 +138,11 @@ class VocabularyProvider extends ChangeNotifier {
     await _service.deleteVocabulary(_uid!, _currentLanguagePairId!, id);
   }
 
+  Future<void> resetCourse(String pairId) async {
+    if (_uid == null) return;
+    await _service.resetLanguagePair(_uid!, pairId);
+  }
+
   @override
   void dispose() {
     _subscription?.cancel();
