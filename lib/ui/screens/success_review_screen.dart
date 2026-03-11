@@ -6,6 +6,9 @@ import '../../models/badge_model.dart';
 class SuccessReviewScreen extends StatelessWidget {
   const SuccessReviewScreen({Key? key}) : super(key: key);
 
+  // XP-Meilensteine
+  static const List<int> _milestones = [50, 100, 250, 500, 1000, 2500, 5000, 10000];
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -28,8 +31,7 @@ class SuccessReviewScreen extends StatelessWidget {
 
     final xpForNext = gamification.xpForNextLevel;
     final xpForCurrent = gamification.getXpRequiredForLevel(user.level);
-    
-    // Progress calculation for the progress bar
+
     double progress = 0.0;
     if (xpForNext > xpForCurrent) {
       progress = (user.xp - xpForCurrent) / (xpForNext - xpForCurrent);
@@ -38,18 +40,14 @@ class SuccessReviewScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
+      // Kein AppBar mit Zurück-Pfeil – Screen ist Tab, kein pushed Route
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        automaticallyImplyLeading: false, // Pfeil entfernen
         title: const Text('Erfolge', style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
-        actions: [
-          IconButton(icon: const Icon(Icons.share), onPressed: () {}),
-        ],
+        // Share-Button entfernt
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -86,11 +84,7 @@ class SuccessReviewScreen extends StatelessWidget {
                         ),
                         child: Text(
                           'LVL ${user.level}',
-                          style: const TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
+                          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 12),
                         ),
                       ),
                     ],
@@ -111,23 +105,15 @@ class SuccessReviewScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  
-                  // Progress Bar
                   Container(
                     width: 200,
                     height: 8,
-                    decoration: BoxDecoration(
-                      color: theme.cardColor,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
+                    decoration: BoxDecoration(color: theme.cardColor, borderRadius: BorderRadius.circular(4)),
                     child: FractionallySizedBox(
                       alignment: Alignment.centerLeft,
                       widthFactor: progress,
                       child: Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF13ec5b),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
+                        decoration: BoxDecoration(color: const Color(0xFF13ec5b), borderRadius: BorderRadius.circular(4)),
                       ),
                     ),
                   ),
@@ -145,30 +131,70 @@ class SuccessReviewScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Row(
                 children: [
-                  _buildStatCard(
-                    theme,
-                    value: gamification.badges.length.toString(),
-                    label: 'ABZEICHEN',
-                    valueColor: const Color(0xFF13ec5b),
-                  ),
+                  _buildStatCard(theme,
+                      value: gamification.badges.length.toString(),
+                      label: 'ABZEICHEN',
+                      valueColor: const Color(0xFF13ec5b)),
                   const SizedBox(width: 8),
-                  _buildStatCard(
-                    theme,
-                    value: '15', // Placeholder for awards if needed
-                    label: 'AUSZEICHNUNGEN',
-                  ),
+                  _buildStatCard(theme, value: '${user.xp}', label: 'GESAMT XP'),
                   const SizedBox(width: 8),
-                  _buildStatCard(
-                    theme,
-                    value: '${user.currentStreak}',
-                    label: 'SERIE',
-                    icon: Icons.local_fire_department,
-                    iconColor: Colors.orange,
-                  ),
+                  _buildStatCard(theme,
+                      value: '${user.currentStreak}',
+                      label: 'SERIE',
+                      icon: Icons.local_fire_department,
+                      iconColor: Colors.orange),
                 ],
               ),
             ),
-            
+
+            // --- XP-Meilensteine Button ---
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+              child: GestureDetector(
+                onTap: () => _showMilestonesSheet(context, user.xp),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        const Color(0xFF13ec5b).withOpacity(0.15),
+                        const Color(0xFF13ec5b).withOpacity(0.05),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFF13ec5b).withOpacity(0.35)),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF13ec5b).withOpacity(0.15),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.emoji_events_rounded, color: Color(0xFF13ec5b), size: 22),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('XP-Meilensteine',
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                            Text(
+                              '${_milestones.where((m) => user.xp >= m).length} / ${_milestones.length} erreicht',
+                              style: const TextStyle(color: Colors.grey, fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.chevron_right, color: Color(0xFF13ec5b)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
             // --- Badges Grid ---
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -180,7 +206,8 @@ class SuccessReviewScreen extends StatelessWidget {
                       const Text('Deine Sammlung', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                       TextButton(
                         onPressed: () {},
-                        child: const Text('Alle ansehen', style: TextStyle(color: Color(0xFF13ec5b), fontWeight: FontWeight.bold)),
+                        child: const Text('Alle ansehen',
+                            style: TextStyle(color: Color(0xFF13ec5b), fontWeight: FontWeight.bold)),
                       ),
                     ],
                   ),
@@ -195,7 +222,7 @@ class SuccessReviewScreen extends StatelessWidget {
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 16,
                     ),
-                    itemCount: gamification.badges.length + 6, // Adding some locked placeholders for visual effect
+                    itemCount: gamification.badges.length + 6,
                     itemBuilder: (context, index) {
                       if (index < gamification.badges.length) {
                         return _buildBadge(gamification.badges[index]);
@@ -213,7 +240,140 @@ class SuccessReviewScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatCard(ThemeData theme, {required String value, required String label, IconData? icon, Color? iconColor, Color? valueColor}) {
+  void _showMilestonesSheet(BuildContext context, int currentXp) {
+    final theme = Theme.of(context);
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        maxChildSize: 0.92,
+        minChildSize: 0.4,
+        builder: (_, scrollController) => Container(
+          decoration: BoxDecoration(
+            color: theme.scaffoldBackgroundColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            children: [
+              const SizedBox(height: 12),
+              Container(
+                width: 40, height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade600,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  children: [
+                    Icon(Icons.emoji_events_rounded, color: Color(0xFF13ec5b)),
+                    SizedBox(width: 10),
+                    Text('XP-Meilensteine',
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: ListView.builder(
+                  controller: scrollController,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: _milestones.length,
+                  itemBuilder: (context, index) {
+                    return _buildMilestoneRow(currentXp, _milestones[index], theme);
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMilestoneRow(int currentXp, int milestone, ThemeData theme) {
+    final bool reached = currentXp >= milestone;
+    final Color color = reached ? const Color(0xFF13ec5b) : Colors.grey.shade700;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: reached ? const Color(0xFF13ec5b).withOpacity(0.08) : theme.cardColor.withOpacity(0.4),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: reached ? const Color(0xFF13ec5b).withOpacity(0.4) : Colors.white.withOpacity(0.05),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            reached ? Icons.check_circle_rounded : Icons.lock_outline_rounded,
+            color: color,
+            size: 22,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '$milestone XP',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    color: reached ? Colors.white : Colors.grey.shade400,
+                  ),
+                ),
+                Text(
+                  _milestoneLabel(milestone),
+                  style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                ),
+              ],
+            ),
+          ),
+          if (reached)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: const Color(0xFF13ec5b),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Text(
+                'Erreicht',
+                style: TextStyle(color: Colors.black, fontSize: 11, fontWeight: FontWeight.bold),
+              ),
+            )
+          else
+            Text(
+              '${currentXp}/$milestone',
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+            ),
+        ],
+      ),
+    );
+  }
+
+  String _milestoneLabel(int milestone) {
+    switch (milestone) {
+      case 50:   return 'Willkommen in der Welt der Wörter!';
+      case 100:  return 'Erster Schritt zum Meister!';
+      case 250:  return 'Fleißig dabei!';
+      case 500:  return 'Halbzeit zum nächsten Level!';
+      case 1000: return 'Vierstellige XP – beeindruckend!';
+      case 2500: return 'Echter Vokabel-Fan!';
+      case 5000: return 'Elitelerner – Top 10%!';
+      case 10000: return 'Legendärer Status erreicht!';
+      default:   return '$milestone XP Meilenstein';
+    }
+  }
+
+  Widget _buildStatCard(ThemeData theme,
+      {required String value, required String label, IconData? icon, Color? iconColor, Color? valueColor}) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -227,10 +387,7 @@ class SuccessReviewScreen extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (icon != null) ...[
-                  Icon(icon, color: iconColor, size: 20),
-                  const SizedBox(width: 4),
-                ],
+                if (icon != null) ...[Icon(icon, color: iconColor, size: 20), const SizedBox(width: 4)],
                 Text(
                   value,
                   style: TextStyle(
@@ -242,10 +399,9 @@ class SuccessReviewScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 4),
-            Text(
-              label,
-              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Colors.grey, letterSpacing: 0.5),
-            ),
+            Text(label,
+                style:
+                    const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Colors.grey, letterSpacing: 0.5)),
           ],
         ),
       ),
@@ -253,10 +409,13 @@ class SuccessReviewScreen extends StatelessWidget {
   }
 
   Widget _buildBadge(BadgeModel badge) {
-    // Basic color mapping
     Color baseColor = const Color(0xFF13ec5b);
-    if (badge.colorHex.toLowerCase() == 'fb923c' || badge.colorHex.contains('orange')) baseColor = Colors.orange;
-    if (badge.colorHex.toLowerCase() == '60a5fa' || badge.colorHex.contains('blue')) baseColor = Colors.blue;
+    if (badge.colorHex.toLowerCase() == 'fb923c' || badge.colorHex.contains('orange')) {
+      baseColor = Colors.orange;
+    }
+    if (badge.colorHex.toLowerCase() == '60a5fa' || badge.colorHex.contains('blue')) {
+      baseColor = Colors.blue;
+    }
 
     IconData icon = Icons.military_tech;
     if (badge.iconName.contains('fire')) icon = Icons.local_fire_department;
@@ -271,33 +430,38 @@ class SuccessReviewScreen extends StatelessWidget {
             shape: BoxShape.circle,
             color: baseColor.withOpacity(0.15),
             border: Border.all(color: baseColor, width: 2),
-            boxShadow: [
-              BoxShadow(
-                color: baseColor.withOpacity(0.2),
-                blurRadius: 10,
-              )
-            ],
+            boxShadow: [BoxShadow(color: baseColor.withOpacity(0.2), blurRadius: 10)],
           ),
-          child: Center(
-            child: Icon(icon, color: baseColor, size: 36),
-          ),
+          child: Center(child: Icon(icon, color: baseColor, size: 36)),
         ),
         const SizedBox(height: 8),
-        Text(
-          badge.name,
-          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-          textAlign: TextAlign.center,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
+        Text(badge.name,
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis),
       ],
     );
   }
 
   Widget _buildLockedBadge(int index) {
-    final icons = [Icons.menu_book, Icons.bolt, Icons.psychology, Icons.groups, Icons.workspace_premium, Icons.history_edu];
-    final titles = ['Eifriger Leser', 'Schneller Lerner', 'Lexikon-Experte', 'Kontaktfreudig', 'Top 1% Club', 'Etymologie-König'];
-    
+    final icons = [
+      Icons.menu_book,
+      Icons.bolt,
+      Icons.psychology,
+      Icons.groups,
+      Icons.workspace_premium,
+      Icons.history_edu
+    ];
+    final titles = [
+      'Eifriger Leser',
+      'Schneller Lerner',
+      'Lexikon-Experte',
+      'Kontaktfreudig',
+      'Top 1% Club',
+      'Etymologie-König'
+    ];
+
     return Opacity(
       opacity: 0.4,
       child: ColorFiltered(
@@ -312,17 +476,13 @@ class SuccessReviewScreen extends StatelessWidget {
                 color: Colors.grey.shade800,
                 border: Border.all(color: Colors.grey.shade600, width: 2),
               ),
-              child: Center(
-                child: Icon(icons[index % icons.length], color: Colors.grey, size: 36),
-              ),
+              child: Center(child: Icon(icons[index % icons.length], color: Colors.grey, size: 36)),
             ),
             const SizedBox(height: 8),
-            Text(
-              titles[index % titles.length],
-              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-            ),
+            Text(titles[index % titles.length],
+                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey),
+                textAlign: TextAlign.center,
+                maxLines: 2),
           ],
         ),
       ),

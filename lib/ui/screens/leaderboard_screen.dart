@@ -46,10 +46,10 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
         backgroundColor: theme.scaffoldBackgroundColor.withOpacity(0.8),
         elevation: 0,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.emoji_events, color: Color(0xFF13ec5b)),
-            onPressed: () {},
-          )
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: const Icon(Icons.emoji_events, color: Color(0xFF13ec5b)),
+          ),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),
