@@ -294,25 +294,10 @@ class _AuthScreenState extends State<AuthScreen> {
                       // ── Social Buttons ────────────────────────────────
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: Row(
-                          children: [
-                            Expanded(
-                                child: _buildSocialButton(
-                              label: 'Google',
-                              icon: Icons.g_mobiledata_rounded,
-                              onTap: _isLoading ? null : _googleSignIn,
-                            )),
-                            const SizedBox(width: 14),
-                            Expanded(
-                                child: Tooltip(
-                              message: 'Nur auf iOS verfügbar',
-                              child: _buildSocialButton(
-                                label: 'Apple',
-                                icon: Icons.apple_rounded,
-                                onTap: null, // deaktiviert auf Android
-                              ),
-                            )),
-                          ],
+                        child: _buildSocialButton(
+                          label: 'Google',
+                          icon: Icons.g_mobiledata_rounded,
+                          onTap: _isLoading ? null : _googleSignIn,
                         ),
                       ),
                       const SizedBox(height: 40),

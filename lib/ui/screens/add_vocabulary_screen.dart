@@ -445,6 +445,9 @@ class _AddVocabularyScreenState extends State<AddVocabularyScreen> {
       {required String hint, double fontSize = 16, bool fontBold = false}) {
     return TextField(
       controller: ctrl,
+      keyboardType: TextInputType.text,
+      autocorrect: true,
+      enableSuggestions: true,
       style: GoogleFonts.lexend(
           fontSize: fontSize, color: Colors.white,
           fontWeight: fontBold ? FontWeight.w700 : FontWeight.w400),
@@ -473,6 +476,9 @@ class _AddVocabularyScreenState extends State<AddVocabularyScreen> {
     return TextField(
       controller: ctrl,
       maxLines: 3,
+      keyboardType: TextInputType.text,
+      autocorrect: true,
+      enableSuggestions: true,
       style: GoogleFonts.lexend(fontSize: 15, color: Colors.white.withValues(alpha: 0.9), height: 1.5),
       decoration: InputDecoration(
         hintText: hint,

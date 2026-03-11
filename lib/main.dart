@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'services/firestore_service.dart';
@@ -48,6 +49,17 @@ class VokabelApp extends StatelessWidget {
         title: 'Vokabeltrainer',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.dark,
+        locale: const Locale('de', 'DE'),
+        supportedLocales: const [
+          Locale('de', 'DE'),
+          Locale('de'),
+          Locale('en'),
+        ],
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
         home: const _AuthGate(),
         routes: {
           '/session/start': (context) => const StartSessionScreen(),
