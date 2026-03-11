@@ -143,6 +143,41 @@ class VocabularyProvider extends ChangeNotifier {
     await _service.resetLanguagePair(_uid!, pairId);
   }
 
+  /// Gibt Vorschläge aus dem globalen Katalog zurück basierend auf Sprachpaar + Präfix.
+  /// Gibt eine leere Liste zurück wenn das Paar nicht unterstützt wird.
+  Future<List<({String term, String translation})>> searchSuggestions(
+      String sourceLang, String targetLang, String query) async {
+    final params = _catalogParams(sourceLang, targetLang);
+    if (params == null || query.length < 2) return [];
+    final raw = await _service.searchCatalogSuggestions(
+      params.$1, query,
+      isReverse: params.$2,
+    );
+    return raw.map((e) {
+      final t = params.$2 ? (e['translation'] ?? '') : (e['term'] ?? '');
+      final tr = params.$2 ? (e['term'] ?? '') : (e['translation'] ?? '');
+      return (term: t as String, translation: tr as String);
+    }).toList();
+  }
+
+  /// Sucht die Übersetzung eines Begriffs im globalen Katalog.
+  /// Gibt null zurück wenn kein Eintrag gefunden wird oder das Paar nicht unterstützt wird.
+  Future<String?> autoFillTranslation(
+      String sourceLang, String targetLang, String term) async {
+    final params = _catalogParams(sourceLang, targetLang);
+    if (params == null) return null;
+    return _service.findCatalogTranslation(params.$1, term, isReverse: params.$2);
+  }
+
+  /// Berechnet (catalogLang, isReverse) aus dem Sprachpaar.
+  (String, bool)? _catalogParams(String source, String target) {
+    if (source == 'Deutsch' && target == 'Englisch') return ('en', false);
+    if (source == 'Deutsch' && target == 'Spanisch') return ('es', false);
+    if (source == 'Englisch' && target == 'Deutsch') return ('en', true);
+    if (source == 'Spanisch' && target == 'Deutsch') return ('es', true);
+    return null; // EN↔ES nicht unterstützt
+  }
+
   @override
   void dispose() {
     _subscription?.cancel();

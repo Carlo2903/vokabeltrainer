@@ -121,6 +121,36 @@ class FirestoreService {
     return snapshot.docs.map((doc) => doc.data()).toList();
   }
 
+  /// Liefert bis zu [limit] Vorschläge aus dem Katalog anhand eines Suchbegriff-Präfix.
+  /// Verwendet client-seitiges Filtern (kein Composite-Index nötig, ~200 Einträge).
+  Future<List<Map<String, dynamic>>> searchCatalogSuggestions(
+      String language, String query, {bool isReverse = false, int limit = 5}) async {
+    if (query.isEmpty) return [];
+    final all = await fetchGlobalCatalog(language);
+    final field = isReverse ? 'translation' : 'term';
+    final q = query.toLowerCase();
+    return all
+        .where((e) => (e[field] as String? ?? '').toLowerCase().startsWith(q))
+        .take(limit)
+        .toList();
+  }
+
+  /// Sucht einen genauen Katalogeintrag und gibt die Übersetzung zurück.
+  Future<String?> findCatalogTranslation(
+      String language, String term, {bool isReverse = false}) async {
+    final field = isReverse ? 'translation' : 'term';
+    final resultField = isReverse ? 'term' : 'translation';
+    final snapshot = await _db
+        .collection('global_catalog')
+        .where('language', isEqualTo: language)
+        .where(field, isEqualTo: term)
+        .limit(1)
+        .get();
+    if (snapshot.docs.isEmpty) return null;
+    return snapshot.docs.first.data()[resultField] as String?;
+  }
+
+
   // ── Gamification ──────────────────────────────────────────────────────────
 
   Future<List<UserProfile>> getLeaderboard({int limit = 10}) async {
