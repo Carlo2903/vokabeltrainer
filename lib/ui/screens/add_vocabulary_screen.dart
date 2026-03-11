@@ -158,33 +158,10 @@ class _AddVocabularyScreenState extends State<AddVocabularyScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: Text('Zurück',
-                          style: GoogleFonts.lexend(color: AppColors.mastered, fontSize: 15)),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.document_scanner, color: AppColors.mastered),
-                      tooltip: 'Smarter Scan',
-                      onPressed: () {
-                        // Navigiere zum OCR Screen
-                        final pair = context.read<LanguageProvider>().selected;
-                        if (pair != null) {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => OcrScanScreen(
-                                courseId: pair.id,
-                                languagePair: pair,
-                              ),
-                            ),
-                          );
-                        }
-                      },
-                    ),
-                  ],
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text('Zurück',
+                      style: GoogleFonts.lexend(color: AppColors.mastered, fontSize: 15)),
                 ),
                 Text('Vokabeln hinzufügen',
                     style: GoogleFonts.lexend(
@@ -203,6 +180,30 @@ class _AddVocabularyScreenState extends State<AddVocabularyScreen> {
             child: SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(16, 24, 16, 120),
               child: Column(children: [
+                // Smarter Scan Button
+                Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.only(bottom: 24),
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      final pair = context.read<LanguageProvider>().selected;
+                      if (pair != null) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => OcrScanScreen(courseId: pair.id, languagePair: pair),
+                          ),
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.document_scanner, color: Colors.black),
+                    label: Text('Text aus Bild scannen', style: GoogleFonts.lexend(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.mastered,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    ),
+                  ),
+                ),
                 // Sprachpaar-Selektor
                 Container(
                   padding: const EdgeInsets.all(4),
