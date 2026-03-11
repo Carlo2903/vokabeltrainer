@@ -35,7 +35,7 @@ class StartSessionScreen extends StatelessWidget {
                     const Spacer(),
                     IconButton(
                       icon: const Icon(Icons.help_outline, color: AppColors.textSecondary),
-                      onPressed: () {},
+                      onPressed: () => _showHelpSheet(context),
                     ),
                   ],
                 ),
@@ -122,6 +122,196 @@ class StartSessionScreen extends StatelessWidget {
     );
   }
 
+  // ── Help Bottom Sheet ────────────────────────────────────────────────
+  void _showHelpSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => DraggableScrollableSheet(
+        initialChildSize: 0.75,
+        minChildSize: 0.5,
+        maxChildSize: 0.92,
+        builder: (_, scrollController) => Container(
+          decoration: const BoxDecoration(
+            color: Color(0xFF161B22),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          child: Column(
+            children: [
+              // Drag handle
+              Padding(
+                padding: const EdgeInsets.only(top: 14, bottom: 8),
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF30363D),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
+              // Header
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 8, 16, 16),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.help_outline_rounded,
+                        color: AppColors.primary,
+                        size: 22,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Konfigurationshilfe',
+                            style: GoogleFonts.lexend(
+                              fontSize: 18,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          Text(
+                            'So funktionieren deine Einstellungen',
+                            style: GoogleFonts.lexend(
+                              fontSize: 12,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.close_rounded,
+                          color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
+              ),
+              // Divider
+              Container(
+                height: 1,
+                color: const Color(0xFF30363D).withValues(alpha: 0.5),
+              ),
+              // Scrollable content
+              Expanded(
+                child: ListView(
+                  controller: scrollController,
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+                  children: [
+                    _helpItem(
+                      icon: Icons.inventory_2_outlined,
+                      iconColor: const Color(0xFF13EC5B),
+                      title: 'Meisterstapel',
+                      description:
+                          'Zeigt die Gesamtzahl deiner Vokabeln, die sich im aktiven Training oder in der Wiederholung befinden. Nur diese Wörter werden in der Session abgefragt.',
+                    ),
+                    _helpDivider(),
+                    _helpItem(
+                      icon: Icons.swap_horiz_rounded,
+                      iconColor: const Color(0xFF00F2FF),
+                      title: 'Übersetzungsrichtung',
+                      description:
+                          'Lege fest, in welche Richtung du übersetzen möchtest:\n\n'  
+                          '• Standard – von deiner Ausgangssprache in die Zielsprache.\n'
+                          '• Umkehren – von der Zielsprache zurück in die Ausgangssprache.\n'
+                          '• Gemischt – beide Richtungen werden zufällig kombiniert.',
+                    ),
+                    _helpDivider(),
+                    _helpItem(
+                      icon: Icons.tune_rounded,
+                      iconColor: AppColors.accent,
+                      title: 'Sitzungsdauer',
+                      description:
+                          'Bestimme, wie viele Vokabeln du pro Sitzung abfragen möchtest (5–50 Wörter). Kürzere Sessions eignen sich für einen schnellen täglichen Check-in, längere für intensives Üben.',
+                    ),
+                    _helpDivider(),
+                    _helpItem(
+                      icon: Icons.local_fire_department_rounded,
+                      iconColor: Colors.orange,
+                      title: 'Tägliche Serie',
+                      description:
+                          'Hier siehst du deinen aktuellen Lern-Streak – also wie viele Tage du in Folge mindestens eine Session abgeschlossen hast. Halte deinen Streak am Laufen, um kontinuierlich Fortschritte zu erzielen!',
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _helpItem({
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String description,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: iconColor.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: iconColor.withValues(alpha: 0.2)),
+            ),
+            child: Icon(icon, color: iconColor, size: 22),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.lexend(
+                    fontSize: 15,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  description,
+                  style: GoogleFonts.lexend(
+                    fontSize: 13,
+                    color: AppColors.textSecondary,
+                    height: 1.6,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _helpDivider() => Container(
+        height: 1,
+        color: const Color(0xFF30363D).withValues(alpha: 0.4),
+      );
+
+  // ── Section Builders ─────────────────────────────────────────────────
   Widget _buildMasterPileCard(int count) {
     return Container(
       padding: const EdgeInsets.all(20),
