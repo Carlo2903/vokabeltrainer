@@ -217,29 +217,33 @@ class DashboardScreen extends StatelessWidget {
       child: Column(
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceLight,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: Text(pair.sourceFlag, style: const TextStyle(fontSize: 20)),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceLight,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.border),
                 ),
-                const SizedBox(width: 12),
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                child: Text(pair.sourceFlag, style: const TextStyle(fontSize: 20)),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(pair.title,
                       style: GoogleFonts.lexend(
-                          fontSize: 20, color: Colors.white, fontWeight: FontWeight.w700)),
+                          fontSize: 20, color: Colors.white, fontWeight: FontWeight.w700),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis),
                   Text('→ ${pair.targetLanguage}  •  $total Wörter',
                       style: GoogleFonts.lexend(
-                          fontSize: 11, color: AppColors.textSecondary)),
+                          fontSize: 11, color: AppColors.textSecondary),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis),
                 ]),
-              ]),
-              Text('${(masteryPercent * 100).toStringAsFixed(0)}% insgesamt',
+              ),
+              const SizedBox(width: 8),
+              Text('${(masteryPercent * 100).toStringAsFixed(0)}% insg.',
                   style: GoogleFonts.lexend(
                       fontSize: 11, color: AppColors.primary, fontWeight: FontWeight.w700)),
             ],
