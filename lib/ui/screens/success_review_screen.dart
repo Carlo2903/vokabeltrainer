@@ -6,7 +6,12 @@ import '../../models/badge_model.dart';
 import '../widgets/user_avatar.dart';
 
 class SuccessReviewScreen extends StatelessWidget {
-  const SuccessReviewScreen({Key? key}) : super(key: key);
+  final bool showBackButton;
+  
+  const SuccessReviewScreen({
+    Key? key,
+    this.showBackButton = false,
+  }) : super(key: key);
 
   // XP-Meilensteine
   static const List<int> _milestones = [50, 100, 250, 500, 1000, 2500, 5000, 10000];
@@ -46,7 +51,13 @@ class SuccessReviewScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        automaticallyImplyLeading: false, // Pfeil entfernen
+        automaticallyImplyLeading: showBackButton, // Pfeil nur anzeigen, wenn requested
+        leading: showBackButton 
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => Navigator.of(context).pop(),
+              )
+            : null,
         title: const Text('Erfolge', style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
         // Share-Button entfernt

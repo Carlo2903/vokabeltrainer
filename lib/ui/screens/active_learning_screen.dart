@@ -263,7 +263,7 @@ class ActiveLearningScreen extends StatelessWidget {
                   onPressed: () {
                     // Navigate to SuccessReviewScreen
                     Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (_) => const SuccessReviewScreen()),
+                      MaterialPageRoute(builder: (_) => const SuccessReviewScreen(showBackButton: true)),
                     );
                   },
                   style: ElevatedButton.styleFrom(
