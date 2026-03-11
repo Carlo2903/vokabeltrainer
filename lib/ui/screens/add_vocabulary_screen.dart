@@ -7,6 +7,7 @@ import '../../models/vocabulary_stack.dart';
 import '../../providers/vocabulary_provider.dart';
 import '../../providers/language_provider.dart';
 import '../theme/app_theme.dart';
+import 'ocr_scan_screen.dart';
 
 class AddVocabularyScreen extends StatefulWidget {
   const AddVocabularyScreen({super.key});
@@ -157,10 +158,33 @@ class _AddVocabularyScreenState extends State<AddVocabularyScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: Text('Zurück',
-                      style: GoogleFonts.lexend(color: AppColors.mastered, fontSize: 15)),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text('Zurück',
+                          style: GoogleFonts.lexend(color: AppColors.mastered, fontSize: 15)),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.document_scanner, color: AppColors.mastered),
+                      tooltip: 'Smarter Scan',
+                      onPressed: () {
+                        // Navigiere zum OCR Screen
+                        final pair = context.read<LanguageProvider>().selected;
+                        if (pair != null) {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => OcrScanScreen(
+                                courseId: pair.id,
+                                languagePair: pair,
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ],
                 ),
                 Text('Vokabeln hinzufügen',
                     style: GoogleFonts.lexend(
