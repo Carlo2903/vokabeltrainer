@@ -73,6 +73,20 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> sendPasswordResetEmail(String email) async {
+    _setError(null);
+    try {
+      await _authService.sendPasswordResetEmail(email);
+      return true;
+    } on FirebaseAuthException catch (e) {
+      _setError(_mapAuthError(e.code));
+      return false;
+    } catch (_) {
+      _setError('Fehler beim Senden der E-Mail.');
+      return false;
+    }
+  }
+
   // ── Google ───────────────────────────────────────────────────────────────
 
   Future<bool> signInWithGoogle() async {

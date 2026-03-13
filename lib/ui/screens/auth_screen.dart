@@ -213,9 +213,7 @@ class _AuthScreenState extends State<AuthScreen> {
                               Align(
                                 alignment: Alignment.centerRight,
                                 child: TextButton(
-                                  onPressed: () {
-                                    // Passwort zurücksetzen – optional erweiterbar
-                                  },
+                                  onPressed: _showForgotPasswordDialog,
                                   child: Text('Passwort vergessen?',
                                       style: GoogleFonts.lexend(
                                           fontSize: 13,
@@ -465,6 +463,114 @@ class _AuthScreenState extends State<AuthScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> _showForgotPasswordDialog() async {
+    final resetEmailController = TextEditingController(text: _emailController.text);
+    bool isDialogLoading = false;
+
+    await showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              backgroundColor: AppColors.surface,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: Text('Passwort zurücksetzen',
+                  style: GoogleFonts.lexend(
+                      color: Colors.white, fontWeight: FontWeight.w600, fontSize: 18)),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Trage hier deine E-Mail-Adresse ein, um einen Link zum Zurücksetzen des Passworts zu erhalten.',
+                    style: GoogleFonts.lexend(color: AppColors.textSecondary, fontSize: 14),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    controller: resetEmailController,
+                    hintText: 'E-Mail Adresse',
+                    icon: Icons.email_outlined,
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: isDialogLoading ? null : () => Navigator.pop(dialogContext),
+                  child: Text('Abbrechen',
+                      style: GoogleFonts.lexend(color: AppColors.textMuted)),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    elevation: 0,
+                  ),
+                  onPressed: isDialogLoading
+                      ? null
+                      : () async {
+                          final email = resetEmailController.text.trim();
+                          if (email.isEmpty || !email.contains('@')) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text('Bitte eine gültige E-Mail eingeben'),
+                                backgroundColor: AppColors.danger,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12)),
+                              ),
+                            );
+                            return;
+                          }
+
+                          setDialogState(() => isDialogLoading = true);
+                          final auth = context.read<AuthProvider>();
+                          final success = await auth.sendPasswordResetEmail(email);
+
+                          if (!context.mounted) return;
+
+                          if (success) {
+                            Navigator.pop(dialogContext);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text('E-Mail zum Zurücksetzen wurde gesendet.'),
+                                backgroundColor: AppColors.success,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12)),
+                              ),
+                            );
+                          } else {
+                            setDialogState(() => isDialogLoading = false);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(auth.errorMessage ?? 'Ein Fehler ist aufgetreten.'),
+                                backgroundColor: AppColors.danger,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12)),
+                              ),
+                            );
+                          }
+                        },
+                  child: isDialogLoading
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        )
+                      : Text('Senden', style: GoogleFonts.lexend(fontWeight: FontWeight.w600)),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }
