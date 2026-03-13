@@ -21,6 +21,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await NotificationService().init();
+  await NotificationService().checkAndScheduleDailyReminder();
   runApp(const VokabelApp());
 }
 

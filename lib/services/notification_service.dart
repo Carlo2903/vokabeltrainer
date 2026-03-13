@@ -1,6 +1,7 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 
 class NotificationService {
@@ -48,18 +49,33 @@ class NotificationService {
 
     // Request permissions (Android 13+)
     if (Platform.isAndroid) {
-      await _localNotificationsPlugin
+      final bool? granted = await _localNotificationsPlugin
           .resolvePlatformSpecificImplementation<
               AndroidFlutterLocalNotificationsPlugin>()
           ?.requestNotificationsPermission();
       
-      await _localNotificationsPlugin
+      print('DEBUG: Notification permission granted: $granted');
+
+      final bool? alarmGranted = await _localNotificationsPlugin
           .resolvePlatformSpecificImplementation<
               AndroidFlutterLocalNotificationsPlugin>()
           ?.requestExactAlarmsPermission();
+          
+      print('DEBUG: Exact Alarms permission granted: $alarmGranted');
     }
 
     _initialized = true;
+  }
+
+  Future<void> checkAndScheduleDailyReminder() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isEnabled = prefs.getBool('notifications_enabled') ?? true;
+    
+    if (isEnabled) {
+      await scheduleDailyReminder(hour: 19, minute: 00);
+    } else {
+      await cancelAll();
+    }
   }
 
   Future<void> scheduleDailyReminder({required int hour, required int minute}) async {
@@ -78,6 +94,8 @@ class NotificationService {
     // Calculate next occurrence
     tz.TZDateTime scheduledDate = _nextInstanceOfTime(hour, minute);
 
+    print('DEBUG: Scheduling daily reminder for: $scheduledDate');
+
     await _localNotificationsPlugin.zonedSchedule(
       0, // Notification ID
       'Zeit zum Lernen! 🧠',
@@ -89,6 +107,7 @@ class NotificationService {
           UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time, // Repeat daily at this time
     );
+    print('DEBUG: Reminder scheduled successfully.');
   }
 
   Future<void> scheduleTestReminder() async {

@@ -153,6 +153,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 value: _notificationsEnabled,
                 onChanged: _toggleNotifications,
               ),
+              _settingsTile(
+                icon: Icons.bug_report_rounded,
+                label: 'Test-Benachrichtigung senden',
+                subtitle: 'Sendet nach 10 Sekunden eine Erinnerung (zum Testen)',
+                onTap: () async {
+                  await NotificationService().scheduleTestReminder();
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Test-Benachrichtigung in 10 Sekunden!')),
+                    );
+                  }
+                },
+              ),
             ]),
 
             const SizedBox(height: 24),
