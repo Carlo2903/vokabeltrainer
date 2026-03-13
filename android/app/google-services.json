@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "866524018140-m6rl6jihei918vr4ccvljjsboqb1p0jc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fhswf.vokabeltrainer",
+            "certificate_hash": "1dd3c4a47456fd253801c881c03f4532c5aaff0d"
+          }
+        },
+        {
           "client_id": "866524018140-9oj4jmejer2lrmu49o3hvi37qcm3ts7o.apps.googleusercontent.com",
           "client_type": 3
         }
