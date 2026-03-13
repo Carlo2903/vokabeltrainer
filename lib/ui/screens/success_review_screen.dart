@@ -139,7 +139,7 @@ class SuccessReviewScreen extends StatelessWidget {
               child: Row(
                 children: [
                   _buildStatCard(theme,
-                      value: gamification.badges.length.toString(),
+                      value: gamification.allBadges.where((b) => b.isUnlocked).length.toString(),
                       label: 'ABZEICHEN',
                       valueColor: const Color(0xFF13ec5b)),
                   const SizedBox(width: 8),
@@ -225,17 +225,14 @@ class SuccessReviewScreen extends StatelessWidget {
                     physics: const NeverScrollableScrollPhysics(),
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
-                      childAspectRatio: 0.8,
+                      childAspectRatio: 0.75, // slightly more vertical space for text
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 16,
                     ),
-                    itemCount: gamification.badges.length + 6,
+                    itemCount: gamification.allBadges.length,
                     itemBuilder: (context, index) {
-                      if (index < gamification.badges.length) {
-                        return _buildBadge(gamification.badges[index]);
-                      } else {
-                        return _buildLockedBadge(index - gamification.badges.length);
-                      }
+                      final badge = gamification.allBadges[index];
+                      return _buildBadgeTapWrapper(context, badge);
                     },
                   ),
                 ],
@@ -415,18 +412,88 @@ class SuccessReviewScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBadge(BadgeModel badge) {
+  Widget _buildBadgeTapWrapper(BuildContext context, BadgeModel badge) {
+    return GestureDetector(
+      onTap: () => _showBadgeDetails(context, badge),
+      child: badge.isUnlocked ? _buildUnlockedBadge(badge) : _buildLockedBadgeImproved(badge),
+    );
+  }
+
+  void _showBadgeDetails(BuildContext context, BadgeModel badge) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Theme.of(context).cardColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Column(
+          children: [
+            if (badge.isUnlocked)
+              _buildUnlockedBadge(badge)
+            else
+              _buildLockedBadgeImproved(badge),
+            const SizedBox(height: 16),
+            Text(badge.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(badge.description, textAlign: TextAlign.center, style: TextStyle(color: Colors.grey.shade400)),
+            const SizedBox(height: 16),
+            if (badge.isUnlocked)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF13ec5b).withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Text('Freigeschaltet', style: TextStyle(color: Color(0xFF13ec5b), fontWeight: FontWeight.bold, fontSize: 12)),
+              )
+            else
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.grey.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Text('Noch nicht freigeschaltet', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 12)),
+              )
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Verstanden', style: TextStyle(color: Color(0xFF13ec5b), fontWeight: FontWeight.bold)),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUnlockedBadge(BadgeModel badge) {
     Color baseColor = const Color(0xFF13ec5b);
-    if (badge.colorHex.toLowerCase() == 'fb923c' || badge.colorHex.contains('orange')) {
+    if (badge.colorHex.toLowerCase() == 'fb923c' || badge.colorHex.toLowerCase().contains('orange')) {
       baseColor = Colors.orange;
-    }
-    if (badge.colorHex.toLowerCase() == '60a5fa' || badge.colorHex.contains('blue')) {
+    } else if (badge.colorHex.toLowerCase() == '60a5fa' || badge.colorHex.toLowerCase().contains('blue')) {
       baseColor = Colors.blue;
+    } else if (badge.colorHex.toLowerCase() == 'eab308' || badge.colorHex.toLowerCase().contains('yellow')) {
+      baseColor = Colors.yellow;
+    } else if (badge.colorHex.toLowerCase() == 'a855f7' || badge.colorHex.toLowerCase().contains('purple')) {
+      baseColor = Colors.purple;
+    } else if (badge.colorHex.toLowerCase() == 'f43f5e' || badge.colorHex.toLowerCase().contains('red') || badge.colorHex.toLowerCase().contains('rose')) {
+      baseColor = Colors.pink;
+    } else if (badge.colorHex.toLowerCase() == '14b8a6' || badge.colorHex.toLowerCase().contains('teal')) {
+      baseColor = Colors.teal;
     }
 
     IconData icon = Icons.military_tech;
     if (badge.iconName.contains('fire')) icon = Icons.local_fire_department;
-    if (badge.iconName.contains('language')) icon = Icons.language;
+    else if (badge.iconName.contains('language')) icon = Icons.language;
+    else if (badge.iconName.contains('menu_book')) icon = Icons.menu_book;
+    else if (badge.iconName.contains('bolt')) icon = Icons.bolt;
+    else if (badge.iconName.contains('psychology')) icon = Icons.psychology;
+    else if (badge.iconName.contains('groups')) icon = Icons.groups;
+    else if (badge.iconName.contains('history_edu')) icon = Icons.history_edu;
 
     return Column(
       children: [
@@ -451,47 +518,37 @@ class SuccessReviewScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLockedBadge(int index) {
-    final icons = [
-      Icons.menu_book,
-      Icons.bolt,
-      Icons.psychology,
-      Icons.groups,
-      Icons.workspace_premium,
-      Icons.history_edu
-    ];
-    final titles = [
-      'Eifriger Leser',
-      'Schneller Lerner',
-      'Lexikon-Experte',
-      'Kontaktfreudig',
-      'Top 1% Club',
-      'Etymologie-König'
-    ];
+  Widget _buildLockedBadgeImproved(BadgeModel badge) {
+    IconData icon = Icons.military_tech;
+    if (badge.iconName.contains('fire')) icon = Icons.local_fire_department;
+    else if (badge.iconName.contains('language')) icon = Icons.language;
+    else if (badge.iconName.contains('menu_book')) icon = Icons.menu_book;
+    else if (badge.iconName.contains('bolt')) icon = Icons.bolt;
+    else if (badge.iconName.contains('psychology')) icon = Icons.psychology;
+    else if (badge.iconName.contains('groups')) icon = Icons.groups;
+    else if (badge.iconName.contains('history_edu')) icon = Icons.history_edu;
 
     return Opacity(
-      opacity: 0.4,
-      child: ColorFiltered(
-        colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
-        child: Column(
-          children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.grey.shade800,
-                border: Border.all(color: Colors.grey.shade600, width: 2),
-              ),
-              child: Center(child: Icon(icons[index % icons.length], color: Colors.grey, size: 36)),
+      opacity: 0.6,
+      child: Column(
+        children: [
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.02),
+              border: Border.all(color: Colors.white.withOpacity(0.1), width: 1.5),
             ),
-            const SizedBox(height: 8),
-            Text(titles[index % titles.length],
-                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey),
-                textAlign: TextAlign.center,
-                maxLines: 2),
-          ],
-        ),
+            child: Center(child: Icon(icon, color: Colors.white.withOpacity(0.3), size: 36)),
+          ),
+          const SizedBox(height: 8),
+          Text(badge.name,
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.grey.shade500),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis),
+        ],
       ),
     );
   }

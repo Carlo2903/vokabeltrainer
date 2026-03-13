@@ -27,6 +27,21 @@ class GamificationProvider extends ChangeNotifier {
 
   UserProfile? get userProfile => _userProfile;
   List<BadgeModel> get badges => _badges;
+  
+  List<BadgeModel> get allBadges {
+    return BadgeModel.catalog.map((catalogBadge) {
+      try {
+        return _badges.firstWhere((b) => b.id == catalogBadge.id);
+      } catch (_) {
+        try {
+          return _badges.firstWhere((b) => b.name == catalogBadge.name);
+        } catch (_) {
+          return catalogBadge;
+        }
+      }
+    }).toList();
+  }
+
   bool get isLoading => _isLoading;
 
   int get currentXP => _userProfile?.xp ?? 0;
@@ -172,27 +187,19 @@ class GamificationProvider extends ChangeNotifier {
   
   void _checkLevelBadges(int level) {
     if (level >= 10 && !_hasBadge('level_10')) {
-      _unlockBadge(BadgeModel(
-        id: 'level_10',
-        name: 'Vokabel-Meister',
-        description: 'Level 10 erreicht!',
-        iconName: 'workspace_premium',
-        colorHex: '13ec5b',
-        unlockedAt: DateTime.now(),
-      ));
+      try {
+        final badge = BadgeModel.catalog.firstWhere((b) => b.id == 'level_10').copyWith(unlockedAt: DateTime.now());
+        _unlockBadge(badge);
+      } catch (_) {}
     }
   }
 
   void _checkStreakBadges(int streak) {
     if (streak >= 7 && !_hasBadge('streak_7')) {
-      _unlockBadge(BadgeModel(
-        id: 'streak_7',
-        name: '7 Tage Serie',
-        description: '7 Tage am Stück gelernt',
-        iconName: 'local_fire_department',
-        colorHex: 'fb923c', // orange-400
-        unlockedAt: DateTime.now(),
-      ));
+      try {
+        final badge = BadgeModel.catalog.firstWhere((b) => b.id == 'streak_7').copyWith(unlockedAt: DateTime.now());
+        _unlockBadge(badge);
+      } catch (_) {}
     }
   }
 
