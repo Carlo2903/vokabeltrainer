@@ -92,14 +92,7 @@ class _AddLanguageDialogState extends State<AddLanguageDialog> {
 
       // Optional: Katalog importieren, WENN angewählt
       if (_importCatalog) {
-         // Da widget.onAdd nur den Future beendet, aber die ID erst im Provider gesetzt wird (wir geben sie dort zurück, ist aber hier nicht direkt greifbar).
-         // ACHTUNG: Das widget.onAdd(newPair) im Provider fügt es zu Firestore hinzu.
-         // Um importFromCatalog sauber aufzurufen, überlassen wir AddLanguageDialog die ID oder lagern den Import in den DashboardScreen aus.
-         // Da wir hier Zugriff auf Provider haben (wenn context gemountet):
-         
-         // In einem echten Refactoring würden wir addLanguagePair etwas sauberer zurückgeben lassen,
-         // aber wir machen es im Provider in "importFromCatalog" mit der ausgewählten Pair-ID.
-         // Da die ID nach onAdd aktuell im LanguageProvider 'selected' ist:
+
       }
 
       if (mounted) Navigator.of(context).pop(_importCatalog ? _selectedPair : null);

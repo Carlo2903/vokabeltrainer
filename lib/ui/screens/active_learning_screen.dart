@@ -35,7 +35,7 @@ class ActiveLearningScreen extends StatelessWidget {
                     onPressed: () { session.resetSession(); Navigator.of(context).pop(); },
                   ),
                   Expanded(child: Column(children: [
-                    Text('SESSION • REVIEW',
+                    Text('SITZUNG • ÜBERBLICK',
                         style: GoogleFonts.lexend(fontSize: 9, color: AppColors.textMuted,
                             fontWeight: FontWeight.w700, letterSpacing: 2)),
                     Text('Vokabeltraining',
@@ -88,7 +88,7 @@ class ActiveLearningScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(children: [
                   Expanded(child: _actionBtn(
-                    label: 'Wrong', sublabel: 'REPEAT SOON',
+                    label: 'Falsch', sublabel: 'Wiederhole',
                     icon: Icons.close, color: const Color(0xFFEF4444),
                     onTap: () {
                       final uid = context.read<AuthProvider>().currentUser?.uid;
@@ -97,7 +97,7 @@ class ActiveLearningScreen extends StatelessWidget {
                   )),
                   const SizedBox(width: 14),
                   Expanded(child: _actionBtn(
-                    label: 'Correct', sublabel: '+10 POINTS',
+                    label: 'Richtig', sublabel: '+10 Punkte',
                     icon: Icons.check, color: const Color(0xFF22C55E),
                     onTap: () async {
                       final uid = context.read<AuthProvider>().currentUser?.uid;
@@ -185,7 +185,7 @@ class ActiveLearningScreen extends StatelessWidget {
           TextButton.icon(
             onPressed: session.flipCard,
             icon: Icon(session.isFlipped ? Icons.expand_less : Icons.expand_more, size: 16),
-            label: Text(session.isFlipped ? 'Hide Answer' : 'Show Definition',
+            label: Text(session.isFlipped ? 'Antwort ausblenden' : 'Definition anzeigen',
                 style: GoogleFonts.lexend(fontSize: 12)),
             style: TextButton.styleFrom(foregroundColor: AppColors.textMuted),
           ),
@@ -242,7 +242,7 @@ class ActiveLearningScreen extends StatelessWidget {
                 child: const Icon(Icons.check, color: Colors.white, size: 56),
               ),
               const SizedBox(height: 32),
-              Text('Session Complete!',
+              Text('Sitzung abgeschlossen!',
                   style: GoogleFonts.lexend(fontSize: 30, color: Colors.white, fontWeight: FontWeight.w700)),
               const SizedBox(height: 12),
               Text('${session.correctCount} von ${session.totalCount} richtig',
