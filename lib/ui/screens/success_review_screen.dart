@@ -62,152 +62,152 @@ class SuccessReviewScreen extends StatelessWidget {
         centerTitle: true,
         // Share-Button entfernt
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // --- Profile Section ---
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                children: [
-                  // Profilbild – unterstützt Base64, URL und Initialen
-                  Stack(
-                    alignment: Alignment.bottomRight,
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Column(
+              children: [
+                // --- Profile Section ---
+                Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
                     children: [
-                      UserAvatar(
-                        photoUrl: context.watch<AuthProvider>().photoUrl ?? user.photoUrl,
-                        displayName: user.displayName,
-                        radius: 60,
-                        borderColor: const Color(0xFF13ec5b).withOpacity(0.3),
-                        borderWidth: 4,
-                        fallbackBackground: theme.cardColor,
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF13ec5b),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: theme.scaffoldBackgroundColor, width: 2),
-                        ),
-                        child: Text(
-                          'LVL ${user.level}',
-                          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 12),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    user.displayName.isEmpty ? 'Benutzer' : user.displayName,
-                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'VOKABEL-ENTDECKER',
-                    style: TextStyle(
-                      color: Color(0xFF13ec5b),
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    width: 200,
-                    height: 8,
-                    decoration: BoxDecoration(color: theme.cardColor, borderRadius: BorderRadius.circular(4)),
-                    child: FractionallySizedBox(
-                      alignment: Alignment.centerLeft,
-                      widthFactor: progress,
-                      child: Container(
-                        decoration: BoxDecoration(color: const Color(0xFF13ec5b), borderRadius: BorderRadius.circular(4)),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '${xpForNext - user.xp} XP bis Level ${user.level + 1}',
-                    style: const TextStyle(color: Colors.grey, fontSize: 12),
-                  ),
-                ],
-              ),
-            ),
-
-            // --- Stats Row ---
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                children: [
-                  _buildStatCard(theme,
-                      value: gamification.allBadges.where((b) => b.isUnlocked).length.toString(),
-                      label: 'ABZEICHEN',
-                      valueColor: const Color(0xFF13ec5b)),
-                  const SizedBox(width: 8),
-                  _buildStatCard(theme, value: '${user.xp}', label: 'GESAMT XP'),
-                  const SizedBox(width: 8),
-                  _buildStatCard(theme,
-                      value: '${user.currentStreak}',
-                      label: 'SERIE',
-                      icon: Icons.local_fire_department,
-                      iconColor: Colors.orange),
-                ],
-              ),
-            ),
-
-            // --- XP-Meilensteine Button ---
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
-              child: GestureDetector(
-                onTap: () => _showMilestonesSheet(context, user.xp),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        const Color(0xFF13ec5b).withOpacity(0.15),
-                        const Color(0xFF13ec5b).withOpacity(0.05),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFF13ec5b).withOpacity(0.35)),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF13ec5b).withOpacity(0.15),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.emoji_events_rounded, color: Color(0xFF13ec5b), size: 22),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('XP-Meilensteine',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                            Text(
-                              '${_milestones.where((m) => user.xp >= m).length} / ${_milestones.length} erreicht',
-                              style: const TextStyle(color: Colors.grey, fontSize: 12),
+                      // Profilbild – unterstützt Base64, URL und Initialen
+                      Stack(
+                        alignment: Alignment.bottomRight,
+                        children: [
+                          UserAvatar(
+                            photoUrl: context.watch<AuthProvider>().photoUrl ?? user.photoUrl,
+                            displayName: user.displayName,
+                            radius: 60,
+                            borderColor: const Color(0xFF13ec5b).withOpacity(0.3),
+                            borderWidth: 4,
+                            fallbackBackground: theme.cardColor,
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF13ec5b),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: theme.scaffoldBackgroundColor, width: 2),
                             ),
-                          ],
+                            child: Text(
+                              'LVL ${user.level}',
+                              style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 12),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        user.displayName.isEmpty ? 'Benutzer' : user.displayName,
+                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'VOKABEL-ENTDECKER',
+                        style: TextStyle(
+                          color: Color(0xFF13ec5b),
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                          letterSpacing: 1.2,
                         ),
                       ),
-                      const Icon(Icons.chevron_right, color: Color(0xFF13ec5b)),
+                      const SizedBox(height: 16),
+                      Container(
+                        width: 200,
+                        height: 8,
+                        decoration: BoxDecoration(color: theme.cardColor, borderRadius: BorderRadius.circular(4)),
+                        child: FractionallySizedBox(
+                          alignment: Alignment.centerLeft,
+                          widthFactor: progress,
+                          child: Container(
+                            decoration: BoxDecoration(color: const Color(0xFF13ec5b), borderRadius: BorderRadius.circular(4)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '${xpForNext - user.xp} XP bis Level ${user.level + 1}',
+                        style: const TextStyle(color: Colors.grey, fontSize: 12),
+                      ),
                     ],
                   ),
                 ),
-              ),
-            ),
 
-            // --- Badges Grid ---
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Row(
+                // --- Stats Row ---
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    children: [
+                      _buildStatCard(theme,
+                          value: gamification.allBadges.where((b) => b.isUnlocked).length.toString(),
+                          label: 'ABZEICHEN',
+                          valueColor: const Color(0xFF13ec5b)),
+                      const SizedBox(width: 8),
+                      _buildStatCard(theme, value: '${user.xp}', label: 'GESAMT XP'),
+                      const SizedBox(width: 8),
+                      _buildStatCard(theme,
+                          value: '${user.currentStreak}',
+                          label: 'SERIE',
+                          icon: Icons.local_fire_department,
+                          iconColor: Colors.orange),
+                    ],
+                  ),
+                ),
+
+                // --- XP-Meilensteine Button ---
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+                  child: GestureDetector(
+                    onTap: () => _showMilestonesSheet(context, user.xp),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            const Color(0xFF13ec5b).withOpacity(0.15),
+                            const Color(0xFF13ec5b).withOpacity(0.05),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFF13ec5b).withOpacity(0.35)),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF13ec5b).withOpacity(0.15),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.emoji_events_rounded, color: Color(0xFF13ec5b), size: 22),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('XP-Meilensteine',
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                                Text(
+                                  '${_milestones.where((m) => user.xp >= m).length} / ${_milestones.length} erreicht',
+                                  style: const TextStyle(color: Colors.grey, fontSize: 12),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Icon(Icons.chevron_right, color: Color(0xFF13ec5b)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+                // --- Badges Grid Title ---
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text('Deine Sammlung', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
@@ -218,28 +218,31 @@ class SuccessReviewScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  GridView.builder(
-                    padding: const EdgeInsets.only(bottom: 24),
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      childAspectRatio: 0.75, // slightly more vertical space for text
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 16,
-                    ),
-                    itemCount: gamification.allBadges.length,
-                    itemBuilder: (context, index) {
-                      final badge = gamification.allBadges[index];
-                      return _buildBadgeTapWrapper(context, badge);
-                    },
-                  ),
-                ],
+                ),
+              ],
+            ),
+          ),
+
+          // --- Badges Grid ---
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 24.0),
+            sliver: SliverGrid(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                childAspectRatio: 0.75, // slightly more vertical space for text
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 16,
+              ),
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final badge = gamification.allBadges[index];
+                  return _buildBadgeTapWrapper(context, badge);
+                },
+                childCount: gamification.allBadges.length,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

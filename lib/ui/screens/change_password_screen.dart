@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -63,10 +62,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     try {
       await context.read<AuthProvider>().changePassword(current, newPw);
       if (mounted) _showSuccessSheet();
-    } on FirebaseAuthException catch (e) {
-      setState(() => _error = _mapError(e.code));
     } catch (e) {
-      setState(() => _error = e.toString());
+      setState(() => _error = e.toString().replaceAll('Exception: ', ''));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -112,15 +109,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     );
   }
 
-  String _mapError(String code) {
-    switch (code) {
-      case 'wrong-password': return 'Aktuelles Passwort ist falsch.';
-      case 'invalid-credential': return 'Ungültige Anmeldedaten.';
-      case 'weak-password': return 'Das Passwort muss mindestens 6 Zeichen lang sein.';
-      case 'requires-recent-login': return 'Bitte melde dich neu an und versuche es erneut.';
-      default: return 'Fehler: $code';
-    }
-  }
+
 
   @override
   Widget build(BuildContext context) {

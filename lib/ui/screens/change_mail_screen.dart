@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -56,10 +55,8 @@ class _ChangeMailScreenState extends State<ChangeMailScreen> {
           message: 'Wir haben einen Bestätigungslink an\n$newMail gesendet.\nBitte klicke auf den Link, um die Änderung abzuschließen.',
         );
       }
-    } on FirebaseAuthException catch (e) {
-      setState(() => _error = _mapError(e.code));
     } catch (e) {
-      setState(() => _error = e.toString());
+      setState(() => _error = e.toString().replaceAll('Exception: ', ''));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -106,16 +103,7 @@ class _ChangeMailScreenState extends State<ChangeMailScreen> {
     );
   }
 
-  String _mapError(String code) {
-    switch (code) {
-      case 'wrong-password': return 'Passwort ist falsch.';
-      case 'invalid-credential': return 'Ungültige Anmeldedaten.';
-      case 'email-already-in-use': return 'Diese E-Mail wird bereits verwendet.';
-      case 'invalid-email': return 'Ungültige E-Mail-Adresse.';
-      case 'requires-recent-login': return 'Bitte melde dich neu an und versuche es erneut.';
-      default: return 'Fehler: $code';
-    }
-  }
+
 
   @override
   Widget build(BuildContext context) {

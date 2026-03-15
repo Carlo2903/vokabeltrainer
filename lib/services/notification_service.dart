@@ -43,7 +43,7 @@ class NotificationService {
     await _localNotificationsPlugin.initialize(
       settings,
       onDidReceiveNotificationResponse: (details) {
-        // Here we could handle taps on the notification, e.g., open app and route to training
+
       },
     );
 

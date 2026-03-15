@@ -129,14 +129,22 @@ class AuthProvider extends ChangeNotifier {
   /// Gibt die photoURL zurück – priorisiert den lokalen Override (Base64)
   String? get photoUrl => _photoUrlOverride ?? _currentUser?.photoURL;
 
-  /// Ändert die E-Mail mit Re-Authentifizierung. Wirft FirebaseAuthException bei Fehlern.
+  /// Ändert die E-Mail mit Re-Authentifizierung.
   Future<void> changeEmail(String newEmail, String currentPassword) async {
-    await _authService.updateEmail(newEmail, currentPassword);
+    try {
+      await _authService.updateEmail(newEmail, currentPassword);
+    } on FirebaseAuthException catch (e) {
+      throw Exception(_mapAuthError(e.code));
+    }
   }
 
   /// Ändert das Passwort mit Re-Authentifizierung.
   Future<void> changePassword(String currentPassword, String newPassword) async {
-    await _authService.updatePassword(currentPassword, newPassword);
+    try {
+      await _authService.updatePassword(currentPassword, newPassword);
+    } on FirebaseAuthException catch (e) {
+      throw Exception(_mapAuthError(e.code));
+    }
   }
 
   /// Tägliches Lernziel speichern / lesen
