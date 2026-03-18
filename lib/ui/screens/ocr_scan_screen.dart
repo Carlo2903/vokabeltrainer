@@ -121,37 +121,37 @@ class _OcrScanScreenState extends State<OcrScanScreen> {
 
     try {
       final wordsToTranslate = _selectedWords.toList();
-      
-      try {
-        final translations = await _translateService.translateBatch(
-          wordsToTranslate,
-          from: '', 
-          to: _getLanguageCode(widget.languagePair.targetLanguage), 
-        );
 
-        final preview = <Map<String, String>>[];
-        for (int i = 0; i < wordsToTranslate.length; i++) {
-          preview.add({
-            'term': wordsToTranslate[i],
-            'translation': translations[i],
-            'description': '',
-          });
-        }
+      // Die Quellsprache (das was gescannt wird) ist sourceLanguage des Paares.
+      // Die Zielsprache (das was wir wollen) ist targetLanguage.
+      final sourceCode = _getLanguageCode(widget.languagePair.sourceLanguage);
+      final targetCode = _getLanguageCode(widget.languagePair.targetLanguage);
 
+      final translations = await _translateService.translateBatch(
+        wordsToTranslate,
+        from: sourceCode,
+        to: targetCode,
+      );
+
+      final preview = <Map<String, String>>[];
+      for (int i = 0; i < wordsToTranslate.length; i++) {
+        preview.add({
+          'term': wordsToTranslate[i],
+          'translation': translations[i],
+          'description': '',
+        });
+      }
+
+      if (mounted) {
         setState(() {
           _previewVocabularies = preview;
           _currentStep = 3;
           _isTranslating = false;
         });
-
-      } catch (e) {
-        setState(() => _isTranslating = false);
-        _showError('Offline-Übersetzungsfehler: $e');
       }
-
     } catch (e) {
-      setState(() => _isTranslating = false);
-      _showError('Fehler: $e');
+      if (mounted) setState(() => _isTranslating = false);
+      _showError('Übersetzungsfehler: $e');
     }
   }
 
@@ -284,7 +284,10 @@ class _OcrScanScreenState extends State<OcrScanScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Wörter antippen, die du lernen möchtest:', style: TextStyle(fontSize: 13, color: Colors.grey)),
+              const Expanded(
+                child: Text('Wörter antippen, die du lernen möchtest:',
+                    style: TextStyle(fontSize: 13, color: Colors.grey)),
+              ),
               TextButton(
                 onPressed: () {
                   setState(() {

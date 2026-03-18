@@ -32,7 +32,7 @@ class VokabelApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final firestoreService = FirestoreService();
     final trainingService = TrainingService(firestoreService);
-    final authService = AuthService();
+    final authService = AuthService();  
 
     return MultiProvider(
       providers: [
